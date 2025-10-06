@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Advanced Tic Tac Toe</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px;
+    margin: 0;
+    color: #333;
+    user-select: none;
+  }
+
+  h1 {
+    margin-bottom: 10px;
+    color: #222;
+  }
+
+  #settings {
+    margin-bottom: 20px;
+  }
+
+  label {
+    margin-right: 10px;
+  }
+
+  select, button {
+    padding: 6px 12px;
+    margin-right: 15px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1.5px solid #ccc;
+    cursor: pointer;
+  }
+
+  #game {
+    display: grid;
+    grid-template-columns: repeat(3, 110px);
+    grid-template-rows: repeat(3, 110px);
+    gap: 12px;
+  }
+
+  .cell {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    font-size: 3.8rem;
+    font-weight: 900;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.25s ease, transform 0.15s ease;
+  }
+
+  .cell:hover:not(.disabled):not(.filled) {
+    background-color: #e6f0ff;
+    transform: scale(1.05);
+  }
+
+  .cell.x {
+    color: #2978b5;
+  }
+
+  .cell.o {
+    color: #d63447;
+  }
+
+  .cell.winning {
+    background-color: #88d8b0 !important;
+    color: #145214 !important;
+    box-shadow: 0 0 15px 3px #58b368;
+    cursor: default;
+  }
+
+  .cell.disabled {
+    cursor: default;
+  }
+
+  #status {
+    margin-top: 20px;
+    font-size: 1.5rem;
+    min-height: 42px;
+    font-weight: 600;
+  }
+
+  #restartBtn, #undoBtn {
+    margin-top: 15px;
+    padding: 10px 28px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 25px;
+    background-color: #2978b5;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 5px 12px rgba(41, 120, 181, 0.5);
+    transition: background-color 0.3s ease;
+    margin-right: 15px;
+  }
+
+  #restartBtn:hover, #undoBtn:hover {
+    background-color: #1f5479;
+  }
+
+  #scoreboard {
+    margin-top: 20px;
+    font-size: 1.2rem;
+  }
+
+  #scoreboard span {
+    margin-right: 20px;
+    font-weight: 600;
+  }
+
+  #timer {
+    margin-top: 12px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #555;
+  }
+
+  #history {
+    margin-top: 20px;
+    width: 350px;
+    max-width: 90vw;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 12px;
+    font-size: 0.95rem;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+
+  #history h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-weight: 700;
+    text-align: center;
+    color: #2978b5;
+  }
+
+  #history ul {
+    list-style-type: none;
+    padding-left: 10px;
+    margin: 0;
+  }
+
+  #history ul li {
+    padding: 3px 0;
+    border-bottom: 1px solid #eee;
+  }
+</style>
+</head>
+<body>
+
+<h1>Advanced Tic Tac Toe</h1>
+
+<div id="settings">
+  <label for="mode">Play Mode:</label>
+  <select id="mode">
+    <option value="human">Human vs Human</option>
+    <option value="easy">Human vs AI (Easy)</option>
+    <option value="hard">Human vs AI (Hard)</option>
+  </select>
+  <button id="restartBtn">Restart Game</button>
+  <button id="undoBtn" disabled>Undo Last Move</button>
+</div>
+
+<div id="status">Player X's turn</div>
+<div id="timer">Time left: 10s</div>
+
+<div id="game"></div>
+
+<div id="scoreboard">
+  <span>Player X Wins: <span id="scoreX">0</span></span>
+  <span>Player O Wins: <span id="scoreO">0</span></span>
+  <span>Draws: <span id="scoreDraw">0</span></span>
+</div>
+
+<div id="history">
+  <h3>Game History</h3>
+  <ul id="moveList"></ul>
+</div>
+
+<script>
+  const gameContainer = document.getElementById('game');
+  const statusDiv = document.getElementById('status');
+  const restartBtn = document.getElementById('restartBtn');
+  const undoBtn = document.getElementById('undoBtn');
+  const modeSelect = document.getElementById('mode');
+  const timerDiv = document.getElementById('timer');
+  const scoreXSpan = document.getElementById('scoreX');
+  const scoreOSpan = document.getElementById('scoreO');
+  const scoreDrawSpan = document.getElementById('scoreDraw');
+  const moveList = document.getElementById('moveList');
+
+  let board = ['', '', '', '', '', '', '', '', ''];
+  let currentPlayer = 'X';
+  let gameActive = true;
+  let moveHistory = [];
+  let scores = { X: 0, O: 0, Draw: 0 };
+  let timer = 10;
+  let timerInterval = null;
+
+  // Winning combos
+  const winningConditions = [
+    [0,1,2], [3,4,5], [6,7,8], // rows
+    [0,3,6], [1,4,7], [2,5,8], // columns
+    [0,4,8], [2,4,6]           // diagonals
+  ];
+
+  // Sounds (optional)
+  const sounds = {
+    click: new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg'),
+    win: new Audio('https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg'),
+    draw: new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg'),
+    lose: new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg')
+  };
+
+  // Initialize board
+  function createBoard() {
+    gameContainer.innerHTML = '';
+    for(let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.dataset.index = i;
+      cell.addEventListener('click', handleCellClick);
+      gameContainer.appendChild(cell);
+    }
+  }
+
+  // Handle clicks on cells
+  function handleCellClick(e) {
+    if (!gameActive) return;
+    const index = e.target.dataset.index;
+    if (board[index] !== '') return;
+
+    makeMove(index, currentPlayer);
+  }
+
+  // Make a move on board and update UI/history
+  function makeMove(index, player) {
+    board[index] = player;
+    const cell = gameContainer.querySelector(`.cell[data-index="${index}"]`);
+    cell.textContent = player;
+    cell.classList.add(player.toLowerCase(), 'filled');
+    moveHistory.push({ index, player });
+
+    undoBtn.disabled = false;
+
+    checkResult();
+  }
+
+  // Switch player
+  function switchPlayer() {
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    statusDiv.textContent = `Player ${currentPlayer}'s turn`;
+    resetTimer();
+  }
+
+  // Check for win or draw
+  function checkResult() {
+    for (const condition of winningConditions) {
+      const [a,b,c] = condition;
+      if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+        // Win detected
+        highlightCells(condition);
+        gameActive = false;
+        statusDiv.textContent = `Player ${currentPlayer} wins! 🎉`;
+        scores[currentPlayer]++;
+        updateScoreboard();
+        restartBtn.style.display = 'inline-block';
+        undoBtn.disabled = true;
+        stopTimer();
+        sounds.win.play();
+        logMove(`Player ${currentPlayer} wins!`);
+        return;
+      }
+    }
+
+    if (!board.includes('')) {
+      // Draw
+      gameActive = false;
+      statusDiv.textContent = `It's a draw! 🤝`;
+      scores.Draw++;
+      updateScoreboard();
+      restartBtn.style.display = 'inline-block';
+      undoBtn.disabled = true;
+      stopTimer();
+      sounds.draw.play();
+      logMove(`Game ended in a draw.`);
+      return;
+    }
+
+    // Continue game
+    switchPlayer();
+
+    // If AI turn, make AI move
+    if (gameActive && isAITurn()) {
+      disableBoard(true);
+      setTimeout(() => {
+        aiMakeMove();
+        disableBoard(false);
+      }, 600);
+    }
+  }
+
+  // Highlight winning cells
+  function highlightCells(indices) {
+    indices.forEach(i => {
+      const cell = gameContainer.querySelector(`.cell[data-index="${i}"]`);
+      if (cell) {
+        cell.classList.add('winning');
+        cell.classList.remove('filled');
+        cell.classList.add('disabled');
+      }
+    });
+  }
+
+  // Update scoreboard UI
+  function updateScoreboard() {
+    scoreXSpan.textContent = scores.X;
+    scoreOSpan.textContent = scores.O;
+    scoreDrawSpan.textContent = scores.Draw;
+  }
+
+  // Restart game
+  function restartGame() {
+    board.fill('');
+    currentPlayer = 'X';
+    gameActive = true;
+    moveHistory = [];
+    statusDiv.textContent = `Player ${currentPlayer}'s turn`;
+    restartBtn.style.display = 'none';
+    undoBtn.disabled = true;
+    timerDiv.textContent = `Time left: 10s`;
+    createBoard();
+    resetTimer();
+    moveList.innerHTML = '';
+    if (isAITurn()) {
+      disableBoard(true);
+      setTimeout(() => {
+        aiMakeMove();
+        disableBoard(false);
+      }, 600);
+    }
+  }
+
+  // Undo last move
+  function undoLastMove() {
+    if (moveHistory.length === 0 || !gameActive) return;
+
+    // Remove last move
+    const lastMove = moveHistory.pop();
+    board[lastMove.index] = '';
+    const cell = gameContainer.querySelector(`.cell[data-index="${lastMove.index}"]`);
+    cell.textContent = '';
+    cell.classList.remove('x', 'o', 'filled');
+
+    // Undo one more move if vs AI and last move was AI
+    if (modeSelect.value !== 'human' && moveHistory.length > 0) {
+      const prevMove = moveHistory.pop();
+      board[prevMove.index] = '';
+      const cell2 = gameContainer.querySelector(`.cell[data-index="${prevMove.index}"]`);
+      cell2.textContent = '';
+      cell2.classList.remove('x', 'o', 'filled');
+      currentPlayer = prevMove.player;
+    } else {
+      currentPlayer = lastMove.player;
+    }
+
+    statusDiv.textContent = `Player ${currentPlayer}'s turn`;
+    undoBtn.disabled = moveHistory.length === 0;
+    gameActive = true;
+    restartBtn.style.display = 'none';
+    resetTimer();
+    removeHighlights();
+    removeDisabled();
+  }
+
+  // Remove highlights from all cells
+  function removeHighlights() {
+    document.querySelectorAll('.winning').forEach(c => c.classList.remove('winning'));
+  }
+
+  // Remove disabled class
+  function removeDisabled() {
+    document.querySelectorAll('.cell.disabled').forEach(c => c.classList.remove('disabled'));
+  }
+
+  // Disable or enable board clicks
+  function disableBoard(disable) {
+    document.querySelectorAll('.cell').forEach(cell => {
+      if (disable) {
+        cell.classList.add('disabled');
+      } else {
+        cell.classList.remove('disabled');
+      }
+    });
+  }
+
+  // AI logic
+  function isAITurn() {
+    return (modeSelect.value !== 'human' && currentPlayer === 'O');
+  }
+
+  function aiMakeMove() {
+    if (!gameActive) return;
+
+    let index;
+    if (modeSelect.value === 'easy') {
+      index = getRandomMove();
+    } else {
+      index = getBestMove(board, currentPlayer);
+    }
+
+    makeMove(index, currentPlayer);
+  }
+
+  // Easy AI - random empty cell
+  function getRandomMove() {
+    const emptyCells = board.map((v,i) => v === '' ? i : null).filter(v => v !== null);
+    return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+  }
+
+  // Hard AI - Minimax algorithm
+  function getBestMove(boardState, player) {
+    // Minimax implementation
+    function minimax(board, depth, isMaximizing) {
+      let winner = checkWinner(board);
+      if (winner !== null) {
+        if (winner === 'X') return { score: -10 + depth };
+        else if (winner === 'O') return { score: 10 - depth };
+        else return { score: 0 };
+      }
+
+      if (isMaximizing) {
+        let bestScore = -Infinity;
+        let move = null;
+        for (let i = 0; i < 9; i++) {
+          if (board[i] === '') {
+            board[i] = 'O';
+            let result = minimax(board, depth + 1, false);
+            board[i] = '';
+            if (result.score > bestScore) {
+              bestScore = result.score;
+              move = i;
+            }
+          }
+        }
+        return { score: bestScore, index: move };
+      } else {
+        let bestScore = Infinity;
+        let move = null;
+        for (let i = 0; i < 9; i++) {
+          if (board[i] === '') {
+            board[i] = 'X';
+            let result = minimax(board, depth + 1, true);
+            board[i] = '';
+            if (result.score < bestScore) {
+              bestScore = result.score;
+              move = i;
+            }
+          }
+        }
+        return { score: bestScore, index: move };
+      }
+    }
+
+    return minimax(boardState.slice(), 0, true).index;
+  }
+
+  // Check winner for minimax (returns 'X', 'O', 'Draw', or null)
+  function checkWinner(board) {
+    for (const condition of winningConditions) {
+      const [a,b,c] = condition;
+      if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+        return board[a];
+      }
+    }
+    if (!board.includes('')) return 'Draw';
+    return null;
+  }
+
+  // Timer handling
+  function resetTimer() {
+    timer = 10;
+    timerDiv.textContent = `Time left: ${timer}s`;
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timer--;
+      timerDiv.textContent = `Time left: ${timer}s`;
+      if(timer <= 0) {
+        clearInterval(timerInterval);
+        timerDiv.textContent = `Time's up!`;
+        // Forfeit turn or lose the game depending on mode
+        if(gameActive) {
+          if(modeSelect.value === 'human') {
+            statusDiv.textContent = `Player ${currentPlayer} ran out of time! Turn forfeited.`;
+            switchPlayer();
+          } else {
+            // vs AI, if human runs out of time, AI wins immediately
+            gameActive = false;
+            statusDiv.textContent = `Player ${currentPlayer} ran out of time! Game over.`;
+            scores[currentPlayer === 'X' ? 'O' : 'X']++;
+            updateScoreboard();
+            restartBtn.style.display = 'inline-block';
+            undoBtn.disabled = true;
+          }
+        }
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if(timerInterval) clearInterval(timerInterval);
+    timerDiv.textContent = '';
+  }
+
+  // Logging moves in history
+  function logMove(text) {
+    const li = document.createElement('li');
+    li.textContent = text;
+    moveList.appendChild(li);
+    moveList.scrollTop = moveList.scrollHeight;
+  }
+
+  // On mode change
+  modeSelect.addEventListener('change', () => {
+    restartGame();
+  });
+
+  restartBtn.addEventListener('click', restartGame);
+  undoBtn.addEventListener('click', undoLastMove);
+
+  // Initial setup
+  createBoard();
+  resetTimer();
+
+</script>
+
+</body>
+</html>
