@@ -3,686 +3,579 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Advanced Tic Tac Toe</title>
+<title>Tic Tac Toe with Bot</title>
 <style>
-  /* Reset & base */
-  * {
-    box-sizing: border-box;
-  }
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #121212;
-    color: #eee;
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
+    font-family: Arial, sans-serif;
+    margin: 20px;
   }
-
-  h1 {
-    margin-bottom: 0.5rem;
-    color: #b388ff;
-    text-shadow: 0 0 5px #7c4dffaa;
-  }
-
-  /* Controls */
-  #controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    justify-content: center;
-    align-items: center;
-  }
-  label {
-    font-size: 1rem;
-  }
-  select, button {
-    font-size: 1rem;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  select {
-    background: #2a2a2a;
-    color: #eee;
-  }
-  button {
-    background: #7c4dff;
-    color: #fff;
-    font-weight: 600;
-    user-select: none;
-  }
-  button:disabled {
-    background: #444;
-    cursor: not-allowed;
-  }
-  button:hover:not(:disabled),
-  select:hover {
-    background: #9f7eff;
-  }
-
-  /* Timer */
-  #timer {
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin-left: 1rem;
-    min-width: 220px;
+  #gameContainer {
+    max-width: 600px;
+    margin: auto;
     text-align: center;
   }
-
-  /* Scoreboard */
-  #scoreboard {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-  }
-  .player-score {
-    background: #222;
-    padding: 0.7rem 1rem;
-    border-radius: 12px;
-    width: 130px;
-    text-align: center;
-    box-shadow: 0 0 10px #0008 inset;
-  }
-  .player-score > div {
-    margin: 0.15rem 0;
-  }
-  .player-symbol {
-    font-size: 2rem;
-    line-height: 1;
-  }
-  .level-badge {
-    font-weight: 700;
-    font-size: 0.9rem;
-    margin-top: 0.3rem;
-    color: #b388ff;
-  }
-
-  /* Game board */
-  #game {
+  #board {
     display: grid;
-    gap: 6px;
-    max-width: 400px;
-    max-height: 400px;
-    width: 100vw;
-    max-width: 400px;
-    aspect-ratio: 1;
+    margin: 20px auto;
+    gap: 5px;
+    user-select: none;
   }
   .cell {
-    background: #2a2a2a;
-    border-radius: 10px;
-    border: 2px solid #444;
-    font-size: 2.6rem;
-    font-weight: 900;
-    color: #eee;
-    cursor: pointer;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    font-size: 2em;
     display: flex;
-    justify-content: center;
     align-items: center;
-    user-select: none;
-    transition: background-color 0.3s ease;
+    justify-content: center;
+    cursor: pointer;
+    height: 60px;
+    width: 60px;
   }
-  .cell:hover:not(:disabled) {
-    background-color: #4a3f7f;
-  }
-  .cell:focus-visible {
-    outline: 3px solid #b388ff;
-    outline-offset: 2px;
-  }
-  .cell.filled.player-0 { color: #d1a3ff; }
-  .cell.filled.player-1 { color: #512da8; }
-  .cell.filled.player-2 { color: #ffbb55; }
-  .cell.filled.player-3 { color: #66ffcc; }
   .cell.blocked {
-    background: #551a8b66;
+    background: #666;
     cursor: not-allowed;
-    color: #bbb;
-    border-color: #7700ffbb;
   }
-
-  /* Modal */
+  #controls {
+    margin-bottom: 10px;
+  }
+  button, select {
+    margin: 5px;
+    padding: 5px 10px;
+  }
   #endGameModal {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: #000d;
+    background: rgba(0,0,0,0.7);
     display: none;
-    justify-content: center;
     align-items: center;
-    z-index: 10;
-  }
-  #endGameModal.show {
-    display: flex;
-  }
-  #endGameModal > div {
-    background: #2a1a5b;
-    border-radius: 12px;
-    padding: 2rem 3rem;
-    text-align: center;
-    box-shadow: 0 0 20px #7c4dffcc;
-  }
-  #endGameTitle {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: #d1a3ff;
-  }
-  #restartBtn {
-    background: #7c4dff;
-    padding: 0.7rem 2rem;
-    font-size: 1.2rem;
-    border-radius: 12px;
-    border: none;
+    justify-content: center;
     color: white;
-    font-weight: 700;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.3s ease;
+    font-size: 1.5em;
+    z-index: 1000;
   }
-  #restartBtn:hover {
-    background: #9f7eff;
+  #endGameModal div {
+    background: #333;
+    padding: 20px;
+    border-radius: 8px;
   }
-
-  /* Confetti canvas */
-  #confetti-canvas {
-    pointer-events: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 5;
-  }
-
-  /* Responsive */
-  @media (max-width: 480px) {
-    #controls {
-      flex-direction: column;
-      gap: 0.8rem;
-    }
-    #timer {
-      min-width: auto;
-      margin-left: 0;
-      margin-top: 0.5rem;
-    }
+  #scoreboard {
+    margin-top: 10px;
+    font-weight: bold;
   }
 </style>
 </head>
 <body>
+<div id="gameContainer">
+  <h1>Tic Tac Toe with Bot</h1>
 
-<h1>Advanced Tic Tac Toe</h1>
+  <div id="controls">
+    <label for="playerCount">Players:</label>
+    <select id="playerCount">
+      <option value="1">1 (Player vs Player)</option>
+      <option value="2" selected>2 (Player vs Player)</option>
+    </select>
 
-<!-- Controls -->
-<div id="controls" role="region" aria-label="Game settings and controls">
-  <label for="boardSize">Board Size:</label>
-  <select id="boardSize" aria-describedby="boardSizeDesc" aria-label="Select board size">
-    <option value="3">3 x 3</option>
-    <option value="4">4 x 4</option>
-    <option value="5">5 x 5</option>
-  </select>
-  <span id="boardSizeDesc" class="sr-only">Choose board dimension</span>
+    <label>
+      <input type="checkbox" id="playVsBot" /> Play vs Bot
+    </label>
 
-  <label for="playerCount">Players:</label>
-  <select id="playerCount" aria-describedby="playerCountDesc" aria-label="Select number of players">
-    <option value="2">2 Players</option>
-    <option value="3">3 Players</option>
-    <option value="4">4 Players</option>
-  </select>
-  <span id="playerCountDesc" class="sr-only">Choose number of players</span>
+    <label for="botDifficulty">Bot Difficulty:</label>
+    <select id="botDifficulty" disabled>
+      <option value="easy">Easy</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+    </select>
 
-  <button id="startBtn" aria-label="Start new game">Start Game</button>
-  <button id="powerupBtn" aria-label="Use power-up" disabled>Use Power-Up</button>
+    <label for="boardSize">Board Size:</label>
+    <select id="boardSize">
+      <option value="3" selected>3x3</option>
+      <option value="4">4x4</option>
+      <option value="5">5x5</option>
+    </select>
 
-  <div id="timer" aria-live="polite" aria-atomic="true" role="status" style="min-width:250px;"></div>
+    <button id="startBtn">Start Game</button>
+    <button id="powerupBtn" disabled>Use Power-Up</button>
+  </div>
+
+  <div id="timer">Time left: <span id="timerValue">10</span>s</div>
+
+  <div id="board"></div>
+
+  <div id="scoreboard">Player 1: 0 | Player 2: 0</div>
 </div>
 
-<!-- Scoreboard -->
-<div id="scoreboard" aria-label="Player scores"></div>
-
-<!-- Game Board -->
-<div id="game" role="grid" aria-label="Tic Tac Toe Board"></div>
-
-<!-- End Game Modal -->
-<div id="endGameModal" role="dialog" aria-modal="true" aria-labelledby="endGameTitle" tabindex="-1">
+<div id="endGameModal">
   <div>
-    <h2 id="endGameTitle"></h2>
-    <button id="restartBtn" aria-label="Restart game">Play Again</button>
+    <div id="endGameMessage"></div>
+    <button id="closeModalBtn">Close</button>
   </div>
 </div>
 
-<!-- Confetti Canvas -->
-<canvas id="confetti-canvas"></canvas>
-
 <script>
 (() => {
-  'use strict';
-
-  // --- Constants ---
-  const PLAYER_SYMBOLS = [
-    ['\u2715', '\u2A2F'],    // Player 1: X and variant
-    ['\u25EF', '\u25CB'],    // Player 2: O and variant
-    ['\u2605', '\u272D'],    // Player 3: Star symbols
-    ['\u25B2', '\u25BC']     // Player 4: Triangles
-  ];
-
-  const PLAYER_COLORS = ['#d1a3ff', '#512da8', '#ffbb55', '#66ffcc'];
-
-  const WIN_LEVELS = [0, 3, 5, 8]; // Wins required for level badges
-
-  const MOVE_TIME_LIMIT = 15; // seconds per move
-
-  // --- DOM Elements ---
-  const gameBoard = document.getElementById('game');
+  const boardElem = document.getElementById('board');
   const startBtn = document.getElementById('startBtn');
   const powerupBtn = document.getElementById('powerupBtn');
-  const boardSizeSelect = document.getElementById('boardSize');
   const playerCountSelect = document.getElementById('playerCount');
-  const scoreboard = document.getElementById('scoreboard');
-  const timerDisplay = document.getElementById('timer');
+  const playVsBotCheckbox = document.getElementById('playVsBot');
+  const botDifficultySelect = document.getElementById('botDifficulty');
+  const boardSizeSelect = document.getElementById('boardSize');
+  const timerElem = document.getElementById('timerValue');
+  const scoreboardElem = document.getElementById('scoreboard');
   const endGameModal = document.getElementById('endGameModal');
-  const endGameTitle = document.getElementById('endGameTitle');
-  const restartBtn = document.getElementById('restartBtn');
-  const confettiCanvas = document.getElementById('confetti-canvas');
+  const endGameMessage = document.getElementById('endGameMessage');
+  const closeModalBtn = document.getElementById('closeModalBtn');
 
-  // --- Game State ---
+  let board = [];
   let boardSize = 3;
   let playerCount = 2;
-  let board = [];
-  let currentPlayer = 0;
+  let vsBot = false;
+  let botDifficulty = 'medium';
+  let currentPlayer = 0; // 0 or 1
   let movesMade = 0;
-  let moveTimer = null;
-  let moveTimeLeft = MOVE_TIME_LIMIT;
-  let lastMoves = [];       // last move index per player for power-up erase
-  let powerupsLeft = [];    // power-up count per player
-  let blockedCells = new Set();
-  let scores = [];
   let gameActive = false;
+  let powerupsLeft = [1, 1]; // one powerup per player
+  let blockedCells = new Set();
+  let lastMoves = [null, null];
+  let timerInterval = null;
+  let timerValue = 10;
 
-  // Confetti animation state
-  let confettiCtx, confettiWidth, confettiHeight, confettiPieces;
-
-  // --- Functions ---
-
-  function initScores() {
-    scores = Array(playerCount).fill(0);
-    powerupsLeft = Array(playerCount).fill(1); // 1 power-up each
-    lastMoves = Array(playerCount).fill(null);
-    updateScoreboard();
-  }
-
-  function updateScoreboard() {
-    scoreboard.innerHTML = '';
-    for(let i = 0; i < playerCount; i++) {
-      const div = document.createElement('div');
-      div.className = 'player-score';
-      div.style.color = PLAYER_COLORS[i];
-      div.innerHTML = `
-        <div class="player-symbol player-${i}" aria-label="Player ${i+1} symbol">${PLAYER_SYMBOLS[i][0]}</div>
-        <div>Player ${i+1}</div>
-        <div>Wins: ${scores[i]}</div>
-        <div class="level-badge">${getLevelBadge(scores[i])}</div>
-        <div>Power-Ups: ${powerupsLeft[i]}</div>
-      `;
-      scoreboard.appendChild(div);
-    }
-  }
-
-  function getLevelBadge(wins) {
-    if (wins >= WIN_LEVELS[3]) return 'Legend 🏆';
-    if (wins >= WIN_LEVELS[2]) return 'Pro ⭐';
-    if (wins >= WIN_LEVELS[1]) return 'Rookie 🔰';
-    return 'Newbie';
-  }
-
-  function createEmptyBoard() {
-    board = Array(boardSize * boardSize).fill(null);
-    blockedCells.clear();
-  }
-
-  function setupGrid() {
-    gameBoard.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
-    gameBoard.style.gridTemplateRows = `repeat(${boardSize}, 1fr)`;
-  }
-
-  function renderBoard() {
-    gameBoard.innerHTML = '';
-    for(let i = 0; i < board.length; i++) {
-      const cell = document.createElement('button');
-      cell.className = 'cell';
-      cell.setAttribute('role', 'gridcell');
-      cell.setAttribute('aria-label', `Row ${Math.floor(i/boardSize)+1}, Column ${i % boardSize + 1}`);
-      cell.dataset.index = i;
-
-      if(blockedCells.has(i)) {
-        cell.classList.add('blocked');
-        cell.disabled = true;
-      }
-
-      if(board[i] !== null) {
-        cell.textContent = PLAYER_SYMBOLS[board[i]][0];
-        cell.classList.add('filled', `player-${board[i]}`);
-        cell.disabled = true;
-      }
-
-      gameBoard.appendChild(cell);
-    }
-  }
-
-  function startTimer() {
-    clearInterval(moveTimer);
-    moveTimeLeft = MOVE_TIME_LIMIT;
-    updateTimerDisplay();
-    moveTimer = setInterval(() => {
-      moveTimeLeft--;
-      updateTimerDisplay();
-      if(moveTimeLeft <= 0) {
-        clearInterval(moveTimer);
-        alert(`Time's up for Player ${currentPlayer + 1}! Turn skipped.`);
-        nextTurn();
-      }
-    }, 1000);
-  }
-
-  function updateTimerDisplay() {
-    timerDisplay.textContent = `Player ${currentPlayer + 1} (${PLAYER_SYMBOLS[currentPlayer][0]}) time left: ${moveTimeLeft}s`;
-    timerDisplay.style.color = PLAYER_COLORS[currentPlayer];
-  }
-
-  function handleCellClick(e) {
-    if (!gameActive) return;
-    const idx = parseInt(e.target.dataset.index);
-    if(board[idx] !== null || blockedCells.has(idx)) return;
-
-    makeMove(idx, currentPlayer);
-  }
-
-  function makeMove(idx, player) {
-    board[idx] = player;
-    lastMoves[player] = idx;
-    movesMade++;
-    renderBoard();
-
-    if(checkWin(idx, player)) {
-      scores[player]++;
-      updateScoreboard();
-      gameActive = false;
-      clearInterval(moveTimer);
-      showEndGameModal(`Player ${player + 1} Wins!`);
-      launchConfetti();
-    } else if(movesMade >= board.length - blockedCells.size) {
-      gameActive = false;
-      clearInterval(moveTimer);
-      showEndGameModal(`It's a Tie!`);
+  // Setup event listeners for toggling bot mode and difficulty
+  playVsBotCheckbox.addEventListener('change', () => {
+    botDifficultySelect.disabled = !playVsBotCheckbox.checked;
+    if (playVsBotCheckbox.checked) {
+      playerCountSelect.value = 1;
+      playerCountSelect.disabled = true;
     } else {
-      if (movesMade % 5 === 0) {
-        blockRandomCell();
-      }
-      nextTurn();
-    }
-  }
-
-  function nextTurn() {
-    powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
-    currentPlayer = (currentPlayer + 1) % playerCount;
-
-    let looped = 0;
-    while(looped < playerCount && isPlayerStuck(currentPlayer)) {
-      currentPlayer = (currentPlayer + 1) % playerCount;
-      looped++;
-    }
-    if(looped === playerCount) {
-      gameActive = false;
-      clearInterval(moveTimer);
-      showEndGameModal("No moves left! It's a Tie!");
-      return;
-    }
-    powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
-    updateTimerDisplay();
-    startTimer();
-  }
-
-  function isPlayerStuck(player) {
-    return board.every((val, idx) => val !== null || blockedCells.has(idx));
-  }
-
-  function checkWin(idx, player) {
-    const row = Math.floor(idx / boardSize);
-    const col = idx % boardSize;
-    const winLength = boardSize;
-
-    function countDirection(dx, dy) {
-      let count = 1;
-      for(let step = 1; step < winLength; step++) {
-        const nx = col + dx*step;
-        const ny = row + dy*step;
-        if(nx < 0 || ny < 0 || nx >= boardSize || ny >= boardSize) break;
-        if(board[ny*boardSize + nx] === player) count++;
-        else break;
-      }
-      for(let step = 1; step < winLength; step++) {
-        const nx = col - dx*step;
-        const ny = row - dy*step;
-        if(nx < 0 || ny < 0 || nx >= boardSize || ny >= boardSize) break;
-        if(board[ny*boardSize + nx] === player) count++;
-        else break;
-      }
-      return count >= winLength;
-    }
-
-    // Check rows, columns, and diagonals
-    return (
-      countDirection(1, 0) || // horizontal
-      countDirection(0, 1) || // vertical
-      countDirection(1, 1) || // diagonal down-right
-      countDirection(1, -1)   // diagonal up-right
-    );
-  }
-
-  // Power-up: erase opponent's last move
-  function usePowerUp() {
-    if(!gameActive || powerupsLeft[currentPlayer] <= 0) return;
-    // Find last opponent move to erase
-    for(let i=1; i<playerCount; i++) {
-      let opponent = (currentPlayer + i) % playerCount;
-      const idx = lastMoves[opponent];
-      if(idx !== null && board[idx] === opponent) {
-        board[idx] = null;
-        lastMoves[opponent] = null;
-        powerupsLeft[currentPlayer]--;
-        renderBoard();
-        updateScoreboard();
-        powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
-        alert(`Player ${currentPlayer + 1} used power-up to erase Player ${opponent + 1}'s last move!`);
-        return;
-      }
-    }
-    alert("No opponent moves to erase!");
-  }
-
-  // Block a random free cell for 2 turns
-  let blockTurnCounter = new Map();
-  function blockRandomCell() {
-    const freeCells = [];
-    board.forEach((val, idx) => {
-      if(val === null && !blockedCells.has(idx)) freeCells.push(idx);
-    });
-    if(freeCells.length === 0) return;
-
-    const cellToBlock = freeCells[Math.floor(Math.random() * freeCells.length)];
-    blockedCells.add(cellToBlock);
-    blockTurnCounter.set(cellToBlock, 2);
-    renderBoard();
-  }
-
-  function decrementBlockedCells() {
-    for (const [cell, turns] of blockTurnCounter.entries()) {
-      if (turns <= 1) {
-        blockedCells.delete(cell);
-        blockTurnCounter.delete(cell);
-      } else {
-        blockTurnCounter.set(cell, turns - 1);
-      }
-    }
-    renderBoard();
-  }
-
-  // End game modal
-  function showEndGameModal(message) {
-    endGameTitle.textContent = message;
-    endGameModal.classList.add('show');
-    endGameModal.focus();
-  }
-
-  function hideEndGameModal() {
-    endGameModal.classList.remove('show');
-  }
-
-  // Confetti animation adapted from a simple JS confetti snippet
-  function launchConfetti() {
-    confettiCtx = confettiCanvas.getContext('2d');
-    confettiWidth = confettiCanvas.width = window.innerWidth;
-    confettiHeight = confettiCanvas.height = window.innerHeight;
-
-    confettiPieces = [];
-    const colors = PLAYER_COLORS.slice(0, playerCount);
-
-    for(let i = 0; i < 150; i++) {
-      confettiPieces.push({
-        x: Math.random() * confettiWidth,
-        y: Math.random() * confettiHeight - confettiHeight,
-        r: (Math.random() * 6) + 4,
-        d: (Math.random() * 15) + 10,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        tilt: Math.floor(Math.random() * 10) - 10,
-        tiltAngle: 0,
-        tiltAngleIncrement: (Math.random() * 0.07) + 0.05
-      });
-    }
-    (function runConfetti() {
-      confettiCtx.clearRect(0, 0, confettiWidth, confettiHeight);
-      confettiPieces.forEach((p, i) => {
-        p.tiltAngle += p.tiltAngleIncrement;
-        p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
-        p.x += Math.sin(p.tiltAngle);
-        p.tilt = Math.sin(p.tiltAngle) * 15;
-
-        confettiCtx.fillStyle = p.color;
-        confettiCtx.beginPath();
-        confettiCtx.moveTo(p.x + p.tilt + p.r / 2, p.y);
-        confettiCtx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
-        confettiCtx.lineTo(p.x + p.tilt - p.r / 2, p.y);
-        confettiCtx.lineTo(p.x + p.tilt, p.y - p.tilt - p.r / 2);
-        confettiCtx.closePath();
-        confettiCtx.fill();
-
-        if(p.y > confettiHeight) {
-          confettiPieces[i] = {
-            x: Math.random() * confettiWidth,
-            y: -10,
-            r: p.r,
-            d: p.d,
-            color: p.color,
-            tilt: p.tilt,
-            tiltAngle: 0,
-            tiltAngleIncrement: p.tiltAngleIncrement
-          };
-        }
-      });
-      if(gameActive) {
-        requestAnimationFrame(runConfetti);
-      } else {
-        confettiCtx.clearRect(0, 0, confettiWidth, confettiHeight);
-      }
-    })();
-  }
-
-  // Keyboard navigation for board
-  gameBoard.addEventListener('keydown', (e) => {
-    if (!gameActive) return;
-    const active = document.activeElement;
-    if (!active.classList.contains('cell')) return;
-
-    const idx = Number(active.dataset.index);
-    let targetIdx = null;
-
-    switch(e.key) {
-      case 'ArrowRight':
-        targetIdx = (idx % boardSize === boardSize - 1) ? idx - (boardSize - 1) : idx + 1;
-        break;
-      case 'ArrowLeft':
-        targetIdx = (idx % boardSize === 0) ? idx + (boardSize - 1) : idx - 1;
-        break;
-      case 'ArrowDown':
-        targetIdx = (idx + boardSize >= board.length) ? idx % boardSize : idx + boardSize;
-        break;
-      case 'ArrowUp':
-        targetIdx = (idx - boardSize < 0) ? (board.length - boardSize + idx % boardSize) : idx - boardSize;
-        break;
-      case 'Enter':
-      case ' ':
-        active.click();
-        e.preventDefault();
-        return;
-    }
-
-    if(targetIdx !== null) {
-      const targetCell = gameBoard.querySelector(`.cell[data-index="${targetIdx}"]`);
-      if(targetCell) {
-        targetCell.focus();
-        e.preventDefault();
-      }
+      playerCountSelect.disabled = false;
     }
   });
 
-  // Event Listeners
+  startBtn.addEventListener('click', startGame);
+  powerupBtn.addEventListener('click', usePowerup);
+  closeModalBtn.addEventListener('click', () => endGameModal.style.display = 'none');
 
-  startBtn.addEventListener('click', () => {
+  function startGame() {
+    vsBot = playVsBotCheckbox.checked;
+    botDifficulty = botDifficultySelect.value;
+    playerCount = vsBot ? 1 : parseInt(playerCountSelect.value);
     boardSize = parseInt(boardSizeSelect.value);
-    playerCount = parseInt(playerCountSelect.value);
 
     createEmptyBoard();
     setupGrid();
     renderBoard();
-    initScores();
+    resetScoresIfNeeded();
 
     currentPlayer = 0;
     movesMade = 0;
     gameActive = true;
+    powerupsLeft = [1, 1];
+    blockedCells.clear();
+    lastMoves = [null, null];
     powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
 
     startTimer();
     hideEndGameModal();
-  });
 
-  gameBoard.addEventListener('click', (e) => {
-    if(e.target.classList.contains('cell') && !e.target.disabled) {
-      handleCellClick(e);
+    if (vsBot && currentPlayer === 1) {
+      botMove();
     }
-  });
+  }
 
-  powerupBtn.addEventListener('click', () => {
-    usePowerUp();
-  });
+  function createEmptyBoard() {
+    board = new Array(boardSize * boardSize).fill(null);
+  }
 
-  restartBtn.addEventListener('click', () => {
-    hideEndGameModal();
-    startBtn.click();
-  });
+  function setupGrid() {
+    boardElem.style.gridTemplateColumns = `repeat(${boardSize}, 60px)`;
+    boardElem.style.gridTemplateRows = `repeat(${boardSize}, 60px)`;
+    boardElem.innerHTML = '';
+    for (let i = 0; i < board.length; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.index = i;
+      cell.addEventListener('click', handleCellClick);
+      boardElem.appendChild(cell);
+    }
+  }
 
-  // Every turn decrement blocked cells turn count
-  setInterval(() => {
-    if(gameActive) decrementBlockedCells();
-  }, 3000);
+  function renderBoard() {
+    for (let i = 0; i < board.length; i++) {
+      const cell = boardElem.children[i];
+      cell.textContent = board[i] === 0 ? 'X' : board[i] === 1 ? 'O' : '';
+      if (blockedCells.has(i)) {
+        cell.classList.add('blocked');
+        cell.textContent = '■';
+        cell.style.color = '#333';
+      } else {
+        cell.classList.remove('blocked');
+        cell.style.color = '#000';
+      }
+    }
+  }
 
-  // Initial focus on controls for keyboard users
-  boardSizeSelect.focus();
+  function handleCellClick(e) {
+    if (!gameActive) return;
+    const idx = Number(e.target.dataset.index);
+    if (board[idx] !== null || blockedCells.has(idx)) return;
+    if (vsBot && currentPlayer === 1) return; // Ignore clicks on bot's turn
 
+    makeMove(idx);
+  }
+
+  function makeMove(idx) {
+    if (board[idx] !== null || blockedCells.has(idx)) return;
+
+    board[idx] = currentPlayer;
+    lastMoves[currentPlayer] = idx;
+    movesMade++;
+
+    renderBoard();
+    updateScoreboard();
+
+    if (checkWin(idx, currentPlayer)) {
+      gameActive = false;
+      showEndGameModal(`Player ${currentPlayer + 1} wins!`);
+      powerupBtn.disabled = true;
+      if (vsBot && currentPlayer === 1) launchConfetti();
+      stopTimer();
+      return;
+    }
+
+    if (movesMade >= boardSize * boardSize) {
+      gameActive = false;
+      showEndGameModal("It's a tie!");
+      powerupBtn.disabled = true;
+      stopTimer();
+      return;
+    }
+
+    currentPlayer = (currentPlayer + 1) % (vsBot ? 2 : playerCount);
+    powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
+    resetTimer();
+
+    if (vsBot && currentPlayer === 1) {
+      botMove();
+    }
+  }
+
+  function checkWin(lastIdx, player) {
+    const row = Math.floor(lastIdx / boardSize);
+    const col = lastIdx % boardSize;
+
+    // Check row
+    let win = true;
+    for (let c = 0; c < boardSize; c++) {
+      if (board[row * boardSize + c] !== player) {
+        win = false;
+        break;
+      }
+    }
+    if (win) return true;
+
+    // Check column
+    win = true;
+    for (let r = 0; r < boardSize; r++) {
+      if (board[r * boardSize + col] !== player) {
+        win = false;
+        break;
+      }
+    }
+    if (win) return true;
+
+    // Check main diagonal if applicable
+    if (row === col) {
+      win = true;
+      for (let i = 0; i < boardSize; i++) {
+        if (board[i * boardSize + i] !== player) {
+          win = false;
+          break;
+        }
+      }
+      if (win) return true;
+    }
+
+    // Check anti diagonal if applicable
+    if (row + col === boardSize - 1) {
+      win = true;
+      for (let i = 0; i < boardSize; i++) {
+        if (board[i * boardSize + (boardSize - 1 - i)] !== player) {
+          win = false;
+          break;
+        }
+      }
+      if (win) return true;
+    }
+
+    return false;
+  }
+
+  // Power-up blocks the last move of opponent
+  function usePowerup() {
+    if (powerupsLeft[currentPlayer] <= 0 || !gameActive) return;
+    const opponent = (currentPlayer + 1) % (vsBot ? 2 : playerCount);
+    const opponentLastMove = lastMoves[opponent];
+    if (opponentLastMove === null || blockedCells.has(opponentLastMove)) return;
+
+    blockedCells.add(opponentLastMove);
+    powerupsLeft[currentPlayer]--;
+    powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
+    renderBoard();
+    // Immediately switch turn
+    currentPlayer = opponent;
+    resetTimer();
+
+    if (vsBot && currentPlayer === 1) {
+      botMove();
+    }
+  }
+
+  // Timer functions
+  function startTimer() {
+    timerValue = 10;
+    timerElem.textContent = timerValue;
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timerValue--;
+      timerElem.textContent = timerValue;
+      if (timerValue <= 0) {
+        clearInterval(timerInterval);
+        skipTurn();
+      }
+    }, 1000);
+  }
+
+  function resetTimer() {
+    startTimer();
+  }
+
+  function stopTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+  }
+
+  // If timer runs out, skip turn
+  function skipTurn() {
+    if (!gameActive) return;
+    currentPlayer = (currentPlayer + 1) % (vsBot ? 2 : playerCount);
+    powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
+    startTimer();
+
+    if (vsBot && currentPlayer === 1) {
+      botMove();
+    }
+  }
+
+  function updateScoreboard() {
+    // Placeholder, could be extended to keep scores over multiple rounds
+    scoreboardElem.textContent = `Player 1: ${powerupsLeft[0]} power-up(s) left | Player 2: ${powerupsLeft[1]} power-up(s) left`;
+  }
+
+  function showEndGameModal(message) {
+    endGameMessage.textContent = message;
+    endGameModal.style.display = 'flex';
+  }
+
+  function hideEndGameModal() {
+    endGameModal.style.display = 'none';
+  }
+
+  function resetScoresIfNeeded() {
+    powerupsLeft = [1, 1];
+    updateScoreboard();
+  }
+
+  // Bot AI moves
+  function botMove() {
+    if (!gameActive || currentPlayer !== 1) return;
+
+    setTimeout(() => {
+      let moveIndex;
+      if (botDifficulty === 'easy') {
+        moveIndex = getRandomMove();
+      } else if (botDifficulty === 'medium') {
+        moveIndex = getMediumMove();
+      } else if (botDifficulty === 'hard') {
+        moveIndex = getHardMove();
+      }
+      if (moveIndex !== null) {
+        makeMove(moveIndex);
+      }
+    }, 1000);
+  }
+
+  function getAvailableMoves() {
+    return board.map((val, idx) => (val === null && !blockedCells.has(idx) ? idx : null))
+                .filter(v => v !== null);
+  }
+
+  function getRandomMove() {
+    const moves = getAvailableMoves();
+    if (moves.length === 0) return null;
+    return moves[Math.floor(Math.random() * moves.length)];
+  }
+
+  // Medium: Try to win, block, else random
+  function getMediumMove() {
+    const moves = getAvailableMoves();
+    if (moves.length === 0) return null;
+
+    // Try to win
+    for (const idx of moves) {
+      board[idx] = 1;
+      if (checkWin(idx, 1)) {
+        board[idx] = null;
+        return idx;
+      }
+      board[idx] = null;
+    }
+    // Block opponent
+    for (const idx of moves) {
+      board[idx] = 0;
+      if (checkWin(idx, 0)) {
+        board[idx] = null;
+        return idx;
+      }
+      board[idx] = null;
+    }
+    return getRandomMove();
+  }
+
+  // Hard: Minimax with alpha-beta pruning
+  function getHardMove() {
+    const best = minimax(board.slice(), 1, true, 0, -Infinity, Infinity);
+    return best.index;
+  }
+
+  function minimax(boardState, player, isMaximizing, depth, alpha, beta) {
+    const moves = boardState.map((val, idx) => (val === null && !blockedCells.has(idx) ? idx : null))
+                            .filter(v => v !== null);
+
+    // Check terminal
+    for (const idx of [...Array(boardState.length).keys()]) {
+      if (boardState[idx] !== null) {
+        if (checkWinForMinimax(boardState, idx, 0)) return { score: -10 + depth, index: null };
+        if (checkWinForMinimax(boardState, idx, 1)) return { score: 10 - depth, index: null };
+      }
+    }
+    if (moves.length === 0) return { score: 0, index: null };
+
+    let bestMove = { score: isMaximizing ? -Infinity : Infinity, index: null };
+
+    for (const idx of moves) {
+      boardState[idx] = player;
+      const scoreObj = minimax(boardState, 1 - player, !isMaximizing, depth + 1, alpha, beta);
+      boardState[idx] = null;
+
+      if (isMaximizing) {
+        if (scoreObj.score > bestMove.score) {
+          bestMove.score = scoreObj.score;
+          bestMove.index = idx;
+        }
+        alpha = Math.max(alpha, scoreObj.score);
+      } else {
+        if (scoreObj.score < bestMove.score) {
+          bestMove.score = scoreObj.score;
+          bestMove.index = idx;
+        }
+        beta = Math.min(beta, scoreObj.score);
+      }
+
+      if (beta <= alpha) break;
+    }
+
+    return bestMove;
+  }
+
+  // Check win for minimax on arbitrary board
+  function checkWinForMinimax(boardState, lastIdx, player) {
+    const size = boardSize;
+    const row = Math.floor(lastIdx / size);
+    const col = lastIdx % size;
+
+    let win = true;
+    for (let c = 0; c < size; c++) {
+      if (boardState[row * size + c] !== player) {
+        win = false;
+        break;
+      }
+    }
+    if (win) return true;
+
+    win = true;
+    for (let r = 0; r < size; r++) {
+      if (boardState[r * size + col] !== player) {
+        win = false;
+        break;
+      }
+    }
+    if (win) return true;
+
+    if (row === col) {
+      win = true;
+      for (let i = 0; i < size; i++) {
+        if (boardState[i * size + i] !== player) {
+          win = false;
+          break;
+        }
+      }
+      if (win) return true;
+    }
+
+    if (row + col === size - 1) {
+      win = true;
+      for (let i = 0; i < size; i++) {
+        if (boardState[i * size + (size - 1 - i)] !== player) {
+          win = false;
+          break;
+        }
+      }
+      if (win) return true;
+    }
+
+    return false;
+  }
+
+  // Simple confetti effect
+  function launchConfetti() {
+    const duration = 2 * 1000;
+    const animationEnd = Date.now() + duration;
+    const colors = ['#bb0000', '#ffffff'];
+
+    (function frame() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) return;
+
+      const confetti = document.createElement('div');
+      confetti.style.position = 'fixed';
+      confetti.style.zIndex = '9999';
+      confetti.style.left = Math.random() * window.innerWidth + 'px';
+      confetti.style.top = '-10px';
+      confetti.style.width = '10px';
+      confetti.style.height = '10px';
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.borderRadius = '50%';
+      confetti.style.opacity = '0.7';
+      confetti.style.pointerEvents = 'none';
+      document.body.appendChild(confetti);
+
+      let pos = -10;
+      const fallInterval = setInterval(() => {
+        pos += 5;
+        confetti.style.top = pos + 'px';
+        if (pos > window.innerHeight) {
+          clearInterval(fallInterval);
+          confetti.remove();
+        }
+      }, 20);
+
+      requestAnimationFrame(frame);
+    })();
+  }
+
+  // Initialize defaults
+  startGame();
 })();
 </script>
-
 </body>
 </html>
