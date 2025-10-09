@@ -11,8 +11,8 @@
   body {
     margin: 0;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #5a2a83, #b892ff);
-    color: #e6d4f0;
+    background: linear-gradient(135deg, #6a1b9a, #8e24aa);
+    color: #e0c3fc;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -24,8 +24,46 @@
   h1 {
     font-size: 3rem;
     margin: 20px 0 10px;
-    text-shadow: 0 0 10px #d1b3ff;
+    text-shadow: 0 0 10px #cba0f4;
     font-weight: 800;
+    letter-spacing: 2px;
+  }
+
+  /* --- Controls --- */
+  #controls {
+    margin: 25px 0;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  label {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  select, button {
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-weight: 700;
+    cursor: pointer;
+    background: linear-gradient(145deg, #9c27b0, #6a1b9a);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  select:hover, button:hover {
+    background: linear-gradient(145deg, #ab47bc, #8e24aa);
+    transform: scale(1.05);
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   /* --- Game Board --- */
@@ -34,106 +72,74 @@
     grid-template-columns: repeat(3, 130px);
     grid-template-rows: repeat(3, 130px);
     gap: 20px;
-    background: rgba(255 255 255 / 0.1);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 0 40px 12px #5a2a83aa;
+    box-shadow: 0 0 40px rgba(106, 27, 154, 0.4);
   }
 
   /* --- Cells --- */
   .cell {
-    background: linear-gradient(145deg, #a67cff, #8a53d5);
+    background: linear-gradient(145deg, #ba68c8, #9c27b0);
     border-radius: 18px;
     box-shadow:
       inset 0 0 6px #fff8,
-      0 8px 18px #5a2a83cc;
-    font-size: 5rem;
+      0 8px 18px rgba(106, 27, 154, 0.4);
+    font-size: 4rem;
     font-weight: 900;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    color: #d9b3ff;
+    color: #e1bee7;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     user-select: none;
     position: relative;
-    overflow: hidden;
   }
 
   .cell:hover:not(.filled):not(.disabled) {
     transform: scale(1.1);
-    box-shadow: 0 0 18px 5px #b991ffcc, inset 0 0 10px #c8aaff88;
+    box-shadow: 0 0 20px 8px #d1c4e9, inset 0 0 10px #b39ddb;
   }
 
+  /* --- Mark Styles --- */
   .cell.x {
-    color: #d1a3ff;
-    text-shadow: 0 0 15px #c477ff;
-    font-family: 'Segoe UI Symbol', sans-serif;
+    color: #f3e5f5;
+    text-shadow: 0 0 10px #ce93d8;
   }
-
   .cell.o {
-    color: #512da8;
-    text-shadow: 0 0 20px #7e57c2;
-    font-family: 'Segoe UI Symbol', sans-serif;
+    color: #b39ddb;
+    text-shadow: 0 0 15px #9575cd;
   }
 
-  /* --- Winning cells animation --- */
+  /* --- Winning Cells Animation --- */
   .cell.winning {
-    animation: pulseGlow 1.5s ease-in-out infinite;
-    box-shadow: 0 0 25px 10px #bb86fc;
-    color: #e0c3fc !important;
+    animation: pulseGlow 1.5s infinite;
+    box-shadow: 0 0 25px 10px #ba68c8;
+    color: #ede7f6 !important;
   }
 
   @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 25px 10px #bb86fc; }
-    50% { box-shadow: 0 0 40px 15px #d1a3ff; }
+    0%, 100% { box-shadow: 0 0 25px 10px #ba68c8; }
+    50% { box-shadow: 0 0 40px 15px #ce93d8; }
   }
 
-  /* --- Controls Panel --- */
-  #controls {
-    margin: 25px 0;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-  }
-
-  label {
-    font-weight: 700;
-  }
-
-  select, button {
-    border: none;
-    border-radius: 20px;
-    padding: 8px 18px;
-    font-weight: 700;
-    cursor: pointer;
-    background: #7e57c2;
-    color: white;
-    box-shadow: 0 5px 18px #5a2a83bb;
-    transition: background-color 0.3s ease;
-  }
-
-  select:hover, button:hover {
-    background-color: #512da8;
-  }
-
-  /* --- Modal for Game End --- */
+  /* --- End Game Modal --- */
   #endGameModal {
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 320px;
-    background: linear-gradient(145deg, #7e57c2, #b392ff);
+    width: 340px;
+    background: linear-gradient(145deg, #ab47bc, #8e24aa);
     border-radius: 24px;
     padding: 28px;
     color: #fff;
     text-align: center;
     transform: translate(-50%, -50%) scale(0);
     opacity: 0;
-    box-shadow: 0 0 20px 15px #5a2a83cc;
+    box-shadow: 0 0 30px rgba(106, 27, 154, 0.5);
     transition: opacity 0.35s ease, transform 0.35s ease;
     z-index: 9999;
-    user-select: none;
   }
 
   #endGameModal.show {
@@ -141,22 +147,29 @@
     opacity: 1;
   }
 
-  #endGameModal button {
+  #endGameModal h2 {
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  #playAgainBtn {
     margin-top: 20px;
-    padding: 10px 25px;
+    padding: 12px 25px;
     border: none;
     border-radius: 25px;
-    background-color: #512da8;
-    color: white;
+    background: linear-gradient(145deg, #6a1b9a, #9c27b0);
+    color: #fff;
     font-weight: 700;
     font-size: 1.2rem;
     cursor: pointer;
-    box-shadow: 0 5px 18px #5a2a83bb;
-    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 15px rgba(106, 27, 154, 0.3);
+    transition: background 0.3s, transform 0.2s;
   }
 
-  #endGameModal button:hover {
-    background-color: #7e57c2;
+  #playAgainBtn:hover {
+    background: linear-gradient(145deg, #8e24aa, #ab47bc);
+    transform: scale(1.05);
   }
 
   /* --- Confetti Canvas --- */
@@ -179,7 +192,7 @@
       padding: 15px;
     }
     .cell {
-      font-size: 3.5rem;
+      font-size: 3rem;
       border-radius: 14px;
     }
   }
@@ -206,11 +219,9 @@
   <button class="cell" role="gridcell" aria-label="Row 1 Column 1" tabindex="0"></button>
   <button class="cell" role="gridcell" aria-label="Row 1 Column 2" tabindex="0"></button>
   <button class="cell" role="gridcell" aria-label="Row 1 Column 3" tabindex="0"></button>
-
   <button class="cell" role="gridcell" aria-label="Row 2 Column 1" tabindex="0"></button>
   <button class="cell" role="gridcell" aria-label="Row 2 Column 2" tabindex="0"></button>
   <button class="cell" role="gridcell" aria-label="Row 2 Column 3" tabindex="0"></button>
-
   <button class="cell" role="gridcell" aria-label="Row 3 Column 1" tabindex="0"></button>
   <button class="cell" role="gridcell" aria-label="Row 3 Column 2" tabindex="0"></button>
   <button class="cell" role="gridcell" aria-label="Row 3 Column 3" tabindex="0"></button>
@@ -239,8 +250,8 @@
   const confettiCanvas = document.getElementById('confetti-canvas');
   const ctx = confettiCanvas.getContext('2d');
 
-  let board = Array(9).fill(null); // 'X' or 'O' or null
-  let playerTurn = true; // player is 'X', AI is 'O'
+  let board = Array(9).fill(null);
+  let playerTurn = true; // player 'X'
   let gameActive = true;
   let moveHistory = [];
   let redoHistory = [];
@@ -248,7 +259,6 @@
   let winningLine = [];
   let confettiRunning = false;
 
-  // Sounds (simple beep from web audio for demo)
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   function playBeep(frequency = 440, duration = 150) {
@@ -263,14 +273,14 @@
     oscillator.stop(audioCtx.currentTime + duration / 1000);
   }
 
-  // --- Confetti Particle System ---
+  // --- Confetti Particles ---
   class ConfettiParticle {
     constructor(canvasWidth, canvasHeight) {
       this.x = Math.random() * canvasWidth;
       this.y = Math.random() * canvasHeight - canvasHeight;
       this.size = Math.random() * 6 + 4;
       this.gravity = 0.3 + Math.random() * 0.3;
-      this.color = `hsl(${Math.random() * 270 + 240}, 90%, 80%)`; // purple hues
+      this.color = `hsl(${Math.random() * 60 + 270}, 80%, 70%)`; // purple hues
       this.rotation = Math.random() * 360;
       this.rotationSpeed = (Math.random() - 0.5) * 10;
       this.velocityX = (Math.random() - 0.5) * 2;
@@ -326,8 +336,6 @@
   }
 
   // --- Game Logic ---
-
-  // Winning combinations indices
   const winningCombos = [
     [0, 1, 2], [3, 4, 5],
     [6, 7, 8], [0, 3, 6],
@@ -355,9 +363,7 @@
       if (board[idx]) {
         cell.classList.add(board[idx].toLowerCase(), 'filled');
       }
-      if (!gameActive) {
-        cell.classList.add('disabled');
-      }
+      if (!gameActive) cell.classList.add('disabled');
     });
   }
 
@@ -366,14 +372,12 @@
   }
 
   // --- Undo / Redo ---
-
   function updateUndoRedoButtons() {
     undoBtn.disabled = moveHistory.length === 0;
     redoBtn.disabled = redoHistory.length === 0;
   }
 
   // --- Player Move ---
-
   function playerMove(index) {
     if (!gameActive || board[index]) return false;
     board[index] = 'X';
@@ -381,17 +385,14 @@
     redoHistory = [];
     playBeep(550);
     updateBoardUI();
-    checkGameStatus('X');
-    if (gameActive) {
-      playerTurn = false;
-      aiMove();
-    }
+    if (checkGameStatus('X')) return;
+    playerTurn = false;
+    aiMove();
     updateUndoRedoButtons();
     return true;
   }
 
   // --- AI Moves ---
-
   function aiMove() {
     setTimeout(() => {
       if (!gameActive) return;
@@ -412,106 +413,87 @@
     }, 700);
   }
 
-  // AI Easy - random
+  // AI Strategies
   function easyAIMove(board, player) {
-    let empty = board.map((v, i) => v === null ? i : null).filter(v => v !== null);
-    return empty[Math.floor(Math.random() * empty.length)];
+    const available = board.map((v, i) => v === null ? i : null).filter(Boolean);
+    return available[Math.floor(Math.random() * available.length)];
   }
 
-  // AI Medium - block and win attempts
   function mediumAIMove(board, player) {
-    // Win if possible
+    // Win
     for (let i = 0; i < 9; i++) {
       if (!board[i]) {
         board[i] = player;
         if (checkWin(board, player)) {
-          board[i] = null;
-          return i;
+          board[i] = null; return i;
         }
         board[i] = null;
       }
     }
-    // Block opponent
-    let opponent = player === 'X' ? 'O' : 'X';
+    // Block
+    const opponent = player === 'X' ? 'O' : 'X';
     for (let i = 0; i < 9; i++) {
       if (!board[i]) {
         board[i] = opponent;
         if (checkWin(board, opponent)) {
-          board[i] = null;
-          return i;
+          board[i] = null; return i;
         }
         board[i] = null;
       }
     }
-    // Pick center, corners, then sides
-    const preferredMoves = [4, 0, 2, 6, 8, 1, 3, 5, 7];
-    for (let move of preferredMoves) {
+    // Preferred moves
+    const preferred = [4, 0, 2, 6, 8, 1, 3, 5, 7];
+    for (let move of preferred) {
       if (!board[move]) return move;
     }
-    // fallback random
     return easyAIMove(board, player);
   }
 
-  // AI Hard - minimax algorithm
   function hardAIMove(board, player) {
     function minimax(newBoard, currentPlayer) {
-      let availSpots = newBoard.map((v, i) => v === null ? i : null).filter(v => v !== null);
-
-      let winComboX = checkWin(newBoard, 'X');
-      let winComboO = checkWin(newBoard, 'O');
-      if (winComboX) return { score: -10 };
-      if (winComboO) return { score: 10 };
+      const availSpots = newBoard.map((v, i) => v === null ? i : null).filter(Boolean);
+      if (checkWin(newBoard, 'X')) return { score: -10 };
+      if (checkWin(newBoard, 'O')) return { score: 10 };
       if (availSpots.length === 0) return { score: 0 };
 
-      let moves = [];
-      for (let i = 0; i < availSpots.length; i++) {
-        let move = {};
-        move.index = availSpots[i];
-        newBoard[availSpots[i]] = currentPlayer;
-
-        if (currentPlayer === 'O') {
-          let result = minimax(newBoard, 'X');
-          move.score = result.score;
-        } else {
-          let result = minimax(newBoard, 'O');
-          move.score = result.score;
-        }
-        newBoard[availSpots[i]] = null;
-        moves.push(move);
+      const moves = [];
+      for (const i of availSpots) {
+        newBoard[i] = currentPlayer;
+        const result = minimax(newBoard, currentPlayer === 'O' ? 'X' : 'O');
+        moves.push({ index: i, score: result.score });
+        newBoard[i] = null;
       }
 
       let bestMove;
       if (currentPlayer === 'O') {
-        let bestScore = -Infinity;
-        for (let i = 0; i < moves.length; i++) {
-          if (moves[i].score > bestScore) {
-            bestScore = moves[i].score;
-            bestMove = moves[i];
+        let maxScore = -Infinity;
+        for (const move of moves) {
+          if (move.score > maxScore) {
+            maxScore = move.score;
+            bestMove = move;
           }
         }
       } else {
-        let bestScore = Infinity;
-        for (let i = 0; i < moves.length; i++) {
-          if (moves[i].score < bestScore) {
-            bestScore = moves[i].score;
-            bestMove = moves[i];
+        let minScore = Infinity;
+        for (const move of moves) {
+          if (move.score < minScore) {
+            minScore = move.score;
+            bestMove = move;
           }
         }
       }
       return bestMove;
     }
-
-    let bestMove = minimax(board, player);
-    return bestMove.index;
+    const best = minimax([...board], player);
+    return best.index;
   }
 
-  // --- Check Game Status ---
+  // --- Game Status ---
   function checkGameStatus(currentPlayer) {
-    const combo = checkWin(board, currentPlayer);
-    if (combo) {
+    const winCombo = checkWin(board, currentPlayer);
+    if (winCombo) {
       gameActive = false;
-      winningLine = combo;
-      highlightWinningCells(combo);
+      highlightWinningCells(winCombo);
       showEndGameModal(`${currentPlayer === 'X' ? 'You Win! 🎉' : 'AI Wins! 💻'}`);
       startConfetti();
       return true;
@@ -523,22 +505,23 @@
     return false;
   }
 
-  // --- End Game Modal ---
+  // --- Modal ---
   function showEndGameModal(message) {
     endGameMessage.textContent = message;
     modal.classList.add('show');
     modal.focus();
   }
+
   function hideEndGameModal() {
     modal.classList.remove('show');
     game.focus();
   }
 
-  // --- Undo ---
+  // --- Undo / Redo ---
   function undoMove() {
     if (moveHistory.length === 0) return;
-    let lastMove = moveHistory.pop();
-    redoHistory.push(lastMove);
+    const last = moveHistory.pop();
+    redoHistory.push(last);
     if (moveHistory.length === 0) {
       board = Array(9).fill(null);
       gameActive = true;
@@ -546,81 +529,140 @@
     } else {
       board = [...moveHistory[moveHistory.length - 1].board];
       gameActive = true;
-      playerTurn = moveHistory[moveHistory.length - 1].player === 'O';
+      playerTurn = moveHistory[moveHistory.length - 1].player === 'X';
     }
     updateBoardUI();
     updateUndoRedoButtons();
     hideEndGameModal();
   }
 
-  // --- Redo ---
   function redoMove() {
     if (redoHistory.length === 0) return;
-    let nextMove = redoHistory.pop();
-    moveHistory.push(nextMove);
-    board = [...nextMove.board];
+    const next = redoHistory.pop();
+    moveHistory.push(next);
+    board = [...next.board];
     gameActive = true;
-    playerTurn = nextMove.player === 'O' ? false : true;
+    playerTurn = next.player === 'X';
     updateBoardUI();
     updateUndoRedoButtons();
     hideEndGameModal();
   }
 
-  // --- Restart Game ---
   function restartGame() {
     board = Array(9).fill(null);
-    playerTurn = true;
-    gameActive = true;
     moveHistory = [];
     redoHistory = [];
-    winningLine = [];
+    gameActive = true;
+    playerTurn = true;
     updateBoardUI();
     updateUndoRedoButtons();
     hideEndGameModal();
   }
 
   // --- Event Listeners ---
-  cells.forEach((cell, idx) => {
-    cell.addEventListener('click', () => {
-      if (playerTurn) playerMove(idx);
-    });
+  cells.forEach((cell, i) => {
+    cell.addEventListener('click', () => { if (playerTurn) playerMove(i); });
     cell.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        if (playerTurn) playerMove(idx);
+        if (playerTurn) playerMove(i);
       }
     });
   });
 
-  undoBtn.addEventListener('click', undoMove);
-  redoBtn.addEventListener('click', redoMove);
-  restartBtn.addEventListener('click', restartGame);
-  difficultySelect.addEventListener('change', (e) => {
+  document.getElementById('undoBtn').addEventListener('click', undoMove);
+  document.getElementById('redoBtn').addEventListener('click', redoMove);
+  document.getElementById('restartBtn').addEventListener('click', restartGame);
+  difficultySelect.addEventListener('change', e => {
     currentDifficulty = e.target.value;
   });
 
-  playAgainBtn.addEventListener('click', () => {
+  document.getElementById('playAgainBtn').addEventListener('click', () => {
     restartGame();
   });
 
-  // Accessibility: Trap focus inside modal when open
-  modal.addEventListener('keydown', (e) => {
+  // Accessibility: trap focus inside modal
+  modal.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       e.preventDefault();
       hideEndGameModal();
     }
     if (e.key === 'Tab') {
-      // simple trap on the button only (one focusable element)
       e.preventDefault();
       playAgainBtn.focus();
     }
   });
 
-  // Initial setup
+  // --- Initialize ---
   updateBoardUI();
   updateUndoRedoButtons();
 
-</script>
+  // --- Confetti ---
+  const ctx = document.getElementById('confetti-canvas').getContext('2d');
+  let particles = [];
 
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+
+    reset() {
+      this.x = Math.random() * window.innerWidth;
+      this.y = Math.random() * -window.innerHeight;
+      this.size = Math.random() * 4 + 2;
+      this.color = `hsl(${Math.random() * 60 + 270}, 80%, 70%)`;
+      this.velocityX = (Math.random() - 0.5) * 2;
+      this.velocityY = Math.random() * 2 + 1;
+      this.rotation = Math.random() * 360;
+      this.rotationSpeed = (Math.random() - 0.5) * 10;
+    }
+
+    update() {
+      this.velocityY += 0.2;
+      this.x += this.velocityX;
+      this.y += this.velocityY;
+      this.rotation += this.rotationSpeed;
+      if (this.y > window.innerHeight + this.size) {
+        this.reset();
+        this.y = -this.size;
+      }
+    }
+
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation * Math.PI / 180);
+      ctx.fillStyle = this.color;
+      ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+      ctx.restore();
+    }
+  }
+
+  function initConfetti() {
+    particles = Array.from({ length: 150 }, () => new Particle());
+  }
+
+  function animateConfetti() {
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    if (confettiRunning) requestAnimationFrame(animateConfetti);
+  }
+
+  function startConfetti() {
+    confettiRunning = true;
+    animateConfetti();
+    setTimeout(() => {
+      confettiRunning = false;
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    }, 4000);
+  }
+
+  window.addEventListener('resize', initConfetti);
+  initConfetti();
+
+</script>
 </body>
 </html>
