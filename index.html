@@ -3,637 +3,429 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Purple Tic Tac Toe</title>
+<title>Complex Purple Tic Tac Toe</title>
 <style>
-  /* Reset and base */
-  * {
-    box-sizing: border-box;
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
   body {
-    margin: 0;
-    background: linear-gradient(135deg, #3a0ca3, #720026);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #eee;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
+    margin: 0; background: #2e0854;
+    color: #cbb8ff; font-family: 'Roboto Mono', monospace;
+    display: flex; flex-direction: column; align-items: center; min-height: 100vh;
     user-select: none;
   }
   h1 {
-    margin-top: 20px;
-    font-weight: 900;
-    text-shadow: 0 0 10px #b37fff;
-    letter-spacing: 0.1em;
+    margin: 20px 0 5px 0;
+    color: #d1b3ff;
+    text-shadow: 0 0 10px #8e44ad;
   }
-
-  /* Container */
-  #game-container {
-    background: #1a0b3b;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 20px;
-    box-shadow:
-      0 0 20px 5px #a65cd1,
-      inset 0 0 15px 5px #8a2be2;
-    width: 100%;
-    max-width: 480px;
+  #gameContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-
-  /* Board */
   #board {
     display: grid;
-    gap: 10px;
-    margin: 20px 0;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 8px;
+    margin: 15px 0;
   }
-
-  /* Cells */
   .cell {
-    background: #330066;
-    border-radius: 10px;
+    width: 100px; height: 100px;
+    background: linear-gradient(145deg, #3c1e72, #250a49);
+    border-radius: 15px;
+    box-shadow: inset 4px 4px 6px #1a0630, inset -4px -4px 6px #4d1ca5;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px; color: #bda6ff;
     cursor: pointer;
-    font-size: 3rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #c5a3ff;
-    box-shadow:
-      0 0 10px 2px #a475ff inset,
-      0 0 15px 3px #a475ff;
-    transition: background 0.3s, color 0.3s, transform 0.3s;
-    user-select: none;
     position: relative;
+    transition: background-color 0.3s ease;
   }
   .cell:hover {
-    background: #6a4caa;
-    color: #d8caff;
-    box-shadow:
-      0 0 15px 5px #c79fff inset,
-      0 0 20px 8px #c79fff;
-    transform: scale(1.05);
+    background: linear-gradient(145deg, #4d2ea4, #3a1f74);
   }
-  .cell.disabled {
+  .cell.occupied {
     cursor: default;
-    opacity: 0.7;
+    color: #d9cfff;
   }
-  .cell.winning-cell {
-    animation: glowPulse 1.5s infinite alternate;
-    box-shadow:
-      0 0 20px 5px #d4a6ff,
-      0 0 30px 10px #d4a6ff inset;
-    color: #fff;
+  .cell.win {
+    animation: glow 1.5s ease-in-out infinite alternate;
   }
-
-  @keyframes glowPulse {
+  @keyframes glow {
     0% {
-      box-shadow:
-        0 0 20px 5px #d4a6ff,
-        0 0 30px 10px #d4a6ff inset;
+      box-shadow: 0 0 10px 4px #b07eff;
+      color: #d1b3ff;
     }
     100% {
-      box-shadow:
-        0 0 40px 10px #f2dbff,
-        0 0 50px 20px #f2dbff inset;
+      box-shadow: 0 0 25px 10px #a16eff;
+      color: #f4e1ff;
     }
   }
-
-  /* Controls Panel */
+  #message {
+    margin-top: 10px;
+    font-size: 18px;
+    min-height: 24px;
+    text-align: center;
+  }
   #controls {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
+    display: flex; gap: 10px; margin-top: 15px;
   }
-  select, button {
-    background: #5a33a3;
+  button {
+    background: #5e3dbd;
     border: none;
-    padding: 8px 14px;
     border-radius: 8px;
-    color: #e8d7ff;
-    font-weight: 700;
-    font-size: 1rem;
-    box-shadow: 0 0 10px 3px #9d7eff;
+    padding: 8px 15px;
+    font-size: 16px;
+    color: #d9cfff;
     cursor: pointer;
-    transition: background 0.3s, box-shadow 0.3s;
-  }
-  select:hover, button:hover {
-    background: #7a55d1;
-    box-shadow: 0 0 15px 6px #b19eff;
+    box-shadow: 0 4px 8px #3a2574;
+    transition: background-color 0.3s ease;
   }
   button:disabled {
-    opacity: 0.5;
+    background: #3d2777;
     cursor: not-allowed;
-    box-shadow: none;
   }
-
-  /* Timer */
-  #timer {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 10px 0;
-    text-align: center;
-    color: #d4b3ff;
-    text-shadow: 0 0 6px #bb99ff;
+  button:hover:not(:disabled) {
+    background: #8a5efd;
   }
-
-  /* Scoreboard */
   #scoreboard {
-    background: #2a1a4a;
-    border-radius: 12px;
-    padding: 12px;
     margin-top: 20px;
-    box-shadow: 0 0 10px 3px #9a7eff inset;
-  }
-  #scoreboard h2 {
-    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #cbb8ff;
     text-align: center;
-    font-weight: 900;
-    text-shadow: 0 0 6px #d7bfff;
   }
-  #scoreboard .stats {
-    display: flex;
-    justify-content: space-around;
-    font-weight: 600;
-    font-size: 1rem;
+  #history-controls {
+    margin-top: 20px;
+    color: #cbb8ff;
+    width: 320px;
+    font-size: 14px;
   }
-  #scoreboard .stats div {
-    padding: 6px 12px;
-    background: #4a3a7a;
+  #moveHistory {
+    margin-top: 10px;
+    max-height: 120px;
+    overflow-y: auto;
+    background: #3b2770;
     border-radius: 8px;
-    box-shadow: 0 0 8px 2px #b9aaff inset;
+    padding: 8px;
   }
-
-  /* Footer */
-  footer {
-    margin: 15px;
-    font-size: 0.9rem;
-    color: #c9b3ff;
-    text-align: center;
+  #moveHistory div {
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 5px;
+    user-select: none;
   }
-
-  /* Responsive */
-  @media (max-width: 520px) {
-    #game-container {
-      max-width: 95vw;
-      padding: 15px;
-    }
-    .cell {
-      font-size: 2.5rem;
-    }
-    select, button {
-      font-size: 0.9rem;
-      padding: 7px 12px;
-    }
+  #moveHistory div:hover {
+    background-color: #704fc1;
+  }
+  #moveHistory .active {
+    background-color: #a678ff;
+    font-weight: bold;
+  }
+  #timer {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #d1b3ff;
+    font-weight: 600;
   }
 </style>
 </head>
 <body>
 
-<h1>Purple Tic Tac Toe</h1>
-
-<div id="game-container">
-
+<h1>Complex Purple Tic Tac Toe</h1>
+<div id="gameContainer">
+  <div id="board" aria-label="Tic Tac Toe Board" role="grid"></div>
+  <div id="message" aria-live="polite"></div>
+  <div id="timer"></div>
   <div id="controls">
-    <select id="grid-size">
-      <option value="3" selected>3 x 3 Grid</option>
-      <option value="4">4 x 4 Grid</option>
-    </select>
-
-    <select id="game-mode">
-      <option value="pvp" selected>Player vs Player</option>
-      <option value="easy-ai">Player vs AI (Easy)</option>
-      <option value="hard-ai">Player vs AI (Hard)</option>
-    </select>
-
-    <button id="undo-btn" disabled>Undo Move</button>
-    <button id="restart-btn">Restart Game</button>
+    <button id="undoBtn" disabled>Undo</button>
+    <button id="redoBtn" disabled>Redo</button>
+    <button id="restartBtn">Restart</button>
   </div>
-
-  <div id="timer">Time left: <span id="time-left">10</span>s</div>
-
-  <div id="board"></div>
-
   <div id="scoreboard">
-    <h2>Scoreboard</h2>
-    <div class="stats">
-      <div>Player X: <span id="score-x">0</span></div>
-      <div>Player O: <span id="score-o">0</span></div>
-      <div>Draws: <span id="score-draw">0</span></div>
-    </div>
+    <div>Player X Wins: <span id="scoreX">0</span></div>
+    <div>Player O Wins: <span id="scoreO">0</span></div>
+    <div>Draws: <span id="scoreDraw">0</span></div>
   </div>
-
+  <div id="history-controls">
+    <div><strong>Move History (click to jump):</strong></div>
+    <div id="moveHistory"></div>
+  </div>
 </div>
-
-<footer>Made with 💜 by ChatGPT</footer>
-
-<!-- Audio -->
-<audio id="sound-place" src="https://freesound.org/data/previews/109/109662_945474-lq.mp3" preload="auto"></audio>
-<audio id="sound-win" src="https://freesound.org/data/previews/276/276020_5121236-lq.mp3" preload="auto"></audio>
-<audio id="sound-draw" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3" preload="auto"></audio>
 
 <script>
 (() => {
-  // Constants and state
   const boardEl = document.getElementById('board');
-  const gridSizeSelect = document.getElementById('grid-size');
-  const gameModeSelect = document.getElementById('game-mode');
-  const undoBtn = document.getElementById('undo-btn');
-  const restartBtn = document.getElementById('restart-btn');
-  const timerEl = document.getElementById('time-left');
-  const scoreXEl = document.getElementById('score-x');
-  const scoreOEl = document.getElementById('score-o');
-  const scoreDrawEl = document.getElementById('score-draw');
+  const messageEl = document.getElementById('message');
+  const timerEl = document.getElementById('timer');
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const scoreXEl = document.getElementById('scoreX');
+  const scoreOEl = document.getElementById('scoreO');
+  const scoreDrawEl = document.getElementById('scoreDraw');
+  const moveHistoryEl = document.getElementById('moveHistory');
 
-  // Sounds
-  const soundPlace = document.getElementById('sound-place');
-  const soundWin = document.getElementById('sound-win');
-  const soundDraw = document.getElementById('sound-draw');
-
-  const MOVE_TIME_LIMIT = 10; // seconds per move
-
-  let gridSize = 3;
-  let gameMode = 'pvp'; // 'pvp', 'easy-ai', 'hard-ai'
-  let board = [];
+  const gridSize = 3;
+  let board = new Array(gridSize * gridSize).fill(null);
   let currentPlayer = 'X';
   let gameActive = true;
-  let timer = MOVE_TIME_LIMIT;
-  let timerInterval = null;
-  let undoStack = [];
-  let scores = { X: 0, O: 0, draws: 0 };
 
-  // Minimax cache
-  let minimaxCalls = 0;
+  // Scores
+  let scores = {
+    X: 0,
+    O: 0,
+    draws: 0,
+  };
 
-  // Initialize game
-  function init() {
-    gridSize = parseInt(gridSizeSelect.value);
-    gameMode = gameModeSelect.value;
-    board = Array(gridSize * gridSize).fill(null);
-    currentPlayer = 'X';
-    gameActive = true;
-    undoStack = [];
-    resetTimer();
-    renderBoard();
-    updateControls();
-  }
+  // History states: each element {board: [...], currentPlayer: 'X'|'O', moveIndex: number|null}
+  let history = [];
+  let historyIndex = -1;
 
-  // Create board UI
-  function renderBoard() {
+  // Timer stuff
+  let turnTime = 10; // seconds per turn
+  let timerId = null;
+  let timerRemaining = turnTime;
+
+  // Create the board UI
+  function createBoard() {
     boardEl.innerHTML = '';
-    boardEl.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-    boardEl.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-
-    for (let i = 0; i < board.length; i++) {
+    boardEl.style.gridTemplateColumns = `repeat(${gridSize}, 100px)`;
+    boardEl.style.gridTemplateRows = `repeat(${gridSize}, 100px)`;
+    for(let i = 0; i < gridSize * gridSize; i++) {
       const cell = document.createElement('div');
       cell.classList.add('cell');
-      cell.dataset.index = i;
-      cell.setAttribute('aria-label', `Cell ${i + 1}`);
       cell.setAttribute('role', 'button');
-      cell.tabIndex = 0;
+      cell.setAttribute('aria-label', `Cell ${i + 1}`);
+      cell.dataset.index = i;
       cell.addEventListener('click', () => handleCellClick(i));
-      cell.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleCellClick(i);
-        }
-      });
-      cell.textContent = board[i] || '';
-      if (!gameActive || board[i]) {
-        cell.classList.add('disabled');
-      }
       boardEl.appendChild(cell);
     }
   }
 
-  // Handle click on a cell
-  function handleCellClick(index) {
-    if (!gameActive) return;
-    if (board[index]) return; // already taken
-    makeMove(index, currentPlayer);
-    playSound(soundPlace);
-    if (checkWin(currentPlayer)) {
-      endGame(`${currentPlayer} wins!`);
-      scores[currentPlayer]++;
-      updateScoreboard();
-      playSound(soundWin);
-      animateWinningCells();
-      return;
-    }
-    if (boardFull()) {
-      endGame("It's a draw!");
-      scores.draws++;
-      updateScoreboard();
-      playSound(soundDraw);
-      return;
-    }
-    switchPlayer();
-    resetTimer();
-
-    // If AI turn, trigger AI move after short delay
-    if (gameActive && isAITurn()) {
-      undoBtn.disabled = true;
-      setTimeout(() => {
-        const aiMoveIndex = getAIMove();
-        makeMove(aiMoveIndex, currentPlayer);
-        playSound(soundPlace);
-        if (checkWin(currentPlayer)) {
-          endGame(`${currentPlayer} wins!`);
-          scores[currentPlayer]++;
-          updateScoreboard();
-          playSound(soundWin);
-          animateWinningCells();
-          return;
-        }
-        if (boardFull()) {
-          endGame("It's a draw!");
-          scores.draws++;
-          updateScoreboard();
-          playSound(soundDraw);
-          return;
-        }
-        switchPlayer();
-        resetTimer();
-        undoBtn.disabled = false;
-      }, 800);
+  function renderBoard() {
+    for(let i = 0; i < board.length; i++) {
+      const cell = boardEl.children[i];
+      const val = board[i];
+      cell.textContent = val || '';
+      cell.classList.toggle('occupied', val !== null);
+      cell.classList.remove('win');
     }
   }
 
-  // Make a move on the board
-  function makeMove(index, player) {
-    board[index] = player;
-    undoStack.push({index, player});
-    renderBoard();
-    undoBtn.disabled = false;
-  }
-
-  // Undo the last move (and AI move if applicable)
-  function undoMove() {
-    if (undoStack.length === 0 || !gameActive) return;
-    // Undo last player move
-    const lastMove = undoStack.pop();
-    board[lastMove.index] = null;
-
-    // If AI mode and last move was by AI, undo that too
-    if ((gameMode === 'easy-ai' || gameMode === 'hard-ai') && undoStack.length > 0 && lastMove.player !== currentPlayer) {
-      const aiLastMove = undoStack.pop();
-      board[aiLastMove.index] = null;
-    }
-
-    gameActive = true;
-    renderBoard();
-    undoBtn.disabled = undoStack.length === 0;
-    resetTimer();
-  }
-
-  // Switch player turns
-  function switchPlayer() {
-    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-  }
-
-  // Check if board is full
-  function boardFull() {
-    return board.every(cell => cell !== null);
-  }
-
-  // Check win conditions for current player
-  function checkWin(player) {
-    const winLen = gridSize === 3 ? 3 : 4;
-
-    // Helper: check line starting at startIndex with step (dx, dy)
-    function checkLine(startX, startY, dx, dy) {
-      for (let i = 0; i < winLen; i++) {
-        let x = startX + i*dx;
-        let y = startY + i*dy;
-        if (board[y*gridSize + x] !== player) return false;
-      }
-      return true;
-    }
-
-    // Check rows, columns, diagonals for a win line
-    for (let y = 0; y < gridSize; y++) {
-      for (let x = 0; x < gridSize; x++) {
-        if (board[y*gridSize + x] !== player) continue;
-
-        // Horizontal
-        if (x <= gridSize - winLen && checkLine(x, y, 1, 0)) {
-          markWinningCells(x, y, 1, 0);
-          return true;
-        }
-        // Vertical
-        if (y <= gridSize - winLen && checkLine(x, y, 0, 1)) {
-          markWinningCells(x, y, 0, 1);
-          return true;
-        }
-        // Diagonal down-right
-        if (x <= gridSize - winLen && y <= gridSize - winLen && checkLine(x, y, 1, 1)) {
-          markWinningCells(x, y, 1, 1);
-          return true;
-        }
-        // Diagonal up-right
-        if (x <= gridSize - winLen && y >= winLen - 1 && checkLine(x, y, 1, -1)) {
-          markWinningCells(x, y, 1, -1);
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  // Mark winning cells for animation
-  let winningCellsIndices = [];
-  function markWinningCells(startX, startY, dx, dy) {
-    winningCellsIndices = [];
-    const winLen = gridSize === 3 ? 3 : 4;
-    for (let i = 0; i < winLen; i++) {
-      let x = startX + i*dx;
-      let y = startY + i*dy;
-      winningCellsIndices.push(y*gridSize + x);
-    }
-  }
-
-  // Animate winning cells glow
-  function animateWinningCells() {
-    winningCellsIndices.forEach(idx => {
-      const cell = boardEl.querySelector(`.cell[data-index='${idx}']`);
-      if(cell) cell.classList.add('winning-cell');
+  function highlightWinningCells(winningCells) {
+    winningCells.forEach(i => {
+      boardEl.children[i].classList.add('win');
     });
   }
 
-  // End game state
-  function endGame(message) {
-    gameActive = false;
-    clearInterval(timerInterval);
-    undoBtn.disabled = true;
-    alert(message);
+  // Returns array of indices if win, else null
+  function checkWin(player) {
+    const lines = [
+      // horizontals
+      [0,1,2], [3,4,5], [6,7,8],
+      // verticals
+      [0,3,6], [1,4,7], [2,5,8],
+      // diagonals
+      [0,4,8], [2,4,6]
+    ];
+    for(const line of lines) {
+      if(line.every(i => board[i] === player)) return line;
+    }
+    return null;
   }
 
-  // Update scoreboard UI
+  function isDraw() {
+    return board.every(cell => cell !== null);
+  }
+
+  // Add a new state to history and update pointer
+  function addHistory(boardState, player, moveIndex) {
+    if(historyIndex < history.length - 1) {
+      history.splice(historyIndex + 1);
+    }
+    history.push({
+      board: boardState.slice(),
+      currentPlayer: player,
+      moveIndex: moveIndex
+    });
+    historyIndex = history.length - 1;
+    updateHistoryControls();
+    renderMoveHistory();
+  }
+
+  function renderMoveHistory() {
+    moveHistoryEl.innerHTML = '';
+    history.forEach((h, i) => {
+      let text = i === 0 ? 'Game Start' : `Move #${i}: Player ${h.currentPlayer === 'X' ? 'O' : 'X'} placed`;
+      if (h.moveIndex !== null) {
+        const row = Math.floor(h.moveIndex / gridSize) + 1;
+        const col = (h.moveIndex % gridSize) + 1;
+        text += ` at (${row},${col})`;
+      }
+      const div = document.createElement('div');
+      div.textContent = text;
+      div.classList.toggle('active', i === historyIndex);
+      div.addEventListener('click', () => {
+        historyIndex = i;
+        loadHistoryState();
+        resetTimer();
+      });
+      moveHistoryEl.appendChild(div);
+    });
+  }
+
+  // Load a board state from history at historyIndex
+  function loadHistoryState() {
+    const state = history[historyIndex];
+    board = state.board.slice();
+    currentPlayer = state.currentPlayer;
+    gameActive = historyIndex === history.length -1;
+    renderBoard();
+    updateMessage();
+    updateControls();
+  }
+
+  function updateMessage() {
+    if(!gameActive) {
+      if(checkWin(currentPlayer === 'X' ? 'O' : 'X')) {
+        messageEl.textContent = `Player ${currentPlayer === 'X' ? 'O' : 'X'} wins!`;
+      } else if(isDraw()) {
+        messageEl.textContent = "It's a draw!";
+      } else {
+        messageEl.textContent = `Viewing past move #${historyIndex}`;
+      }
+    } else {
+      messageEl.textContent = `Player ${currentPlayer}'s turn`;
+    }
+  }
+
+  // Handle user clicking on cell
+  function handleCellClick(i) {
+    if(!gameActive) return;
+    if(board[i] !== null) return;
+
+    board[i] = currentPlayer;
+    addHistory(board, currentPlayer === 'X' ? 'O' : 'X', i);
+    renderBoard();
+
+    const winningCells = checkWin(currentPlayer);
+    if(winningCells) {
+      gameActive = false;
+      highlightWinningCells(winningCells);
+      messageEl.textContent = `Player ${currentPlayer} wins!`;
+      scores[currentPlayer]++;
+      updateScoreboard();
+      stopTimer();
+      return;
+    }
+
+    if(isDraw()) {
+      gameActive = false;
+      messageEl.textContent = "It's a draw!";
+      scores.draws++;
+      updateScoreboard();
+      stopTimer();
+      return;
+    }
+
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    updateMessage();
+    updateControls();
+    resetTimer();
+  }
+
   function updateScoreboard() {
     scoreXEl.textContent = scores.X;
     scoreOEl.textContent = scores.O;
     scoreDrawEl.textContent = scores.draws;
   }
 
-  // Reset timer and start countdown
-  function resetTimer() {
-    clearInterval(timerInterval);
-    timer = MOVE_TIME_LIMIT;
-    timerEl.textContent = timer;
-    if(!gameActive) return;
-    timerInterval = setInterval(() => {
-      timer--;
-      timerEl.textContent = timer;
-      if (timer <= 0) {
-        clearInterval(timerInterval);
-        alert(`Time's up! Player ${currentPlayer} missed their move.`);
-        switchPlayer();
-        resetTimer();
+  // Undo and redo buttons
+  function undoMove() {
+    if(historyIndex > 0) {
+      historyIndex--;
+      loadHistoryState();
+      resetTimer();
+    }
+  }
+  function redoMove() {
+    if(historyIndex < history.length - 1) {
+      historyIndex++;
+      loadHistoryState();
+      resetTimer();
+    }
+  }
+  undoBtn.addEventListener('click', undoMove);
+  redoBtn.addEventListener('click', redoMove);
 
-        if (gameActive && isAITurn()) {
-          setTimeout(() => {
-            const aiMoveIndex = getAIMove();
-            makeMove(aiMoveIndex, currentPlayer);
-            playSound(soundPlace);
-            if (checkWin(currentPlayer)) {
-              endGame(`${currentPlayer} wins!`);
-              scores[currentPlayer]++;
-              updateScoreboard();
-              playSound(soundWin);
-              animateWinningCells();
-              return;
-            }
-            if (boardFull()) {
-              endGame("It's a draw!");
-              scores.draws++;
-              updateScoreboard();
-              playSound(soundDraw);
-              return;
-            }
-            switchPlayer();
-            resetTimer();
-            undoBtn.disabled = false;
-          }, 800);
-        }
+  // Restart game
+  restartBtn.addEventListener('click', () => {
+    initGame();
+  });
+
+  function updateHistoryControls() {
+    undoBtn.disabled = historyIndex <= 0;
+    redoBtn.disabled = historyIndex >= history.length - 1;
+  }
+
+  function updateControls() {
+    undoBtn.disabled = historyIndex <= 0;
+    redoBtn.disabled = historyIndex >= history.length - 1;
+  }
+
+  // Timer Functions
+  function startTimer() {
+    timerRemaining = turnTime;
+    timerEl.textContent = `Time left: ${timerRemaining}s`;
+    if(timerId) clearInterval(timerId);
+    timerId = setInterval(() => {
+      timerRemaining--;
+      timerEl.textContent = `Time left: ${timerRemaining}s`;
+      if(timerRemaining <= 0) {
+        clearInterval(timerId);
+        timerEl.textContent = `Time's up! Switching turn.`;
+        forceSwitchTurn();
       }
     }, 1000);
   }
-
-  // Check if it's AI's turn
-  function isAITurn() {
-    return (gameMode === 'easy-ai' || gameMode === 'hard-ai') && currentPlayer === 'O';
-  }
-
-  // AI Move - Easy: random free cell
-  function getRandomMove() {
-    const freeIndices = board.map((v, i) => v === null ? i : null).filter(i => i !== null);
-    return freeIndices[Math.floor(Math.random() * freeIndices.length)];
-  }
-
-  // AI Move - Hard: minimax algorithm
-  function getBestMove() {
-    minimaxCalls = 0;
-    const best = minimax(board.slice(), currentPlayer, true, -Infinity, Infinity);
-    //console.log('Minimax calls:', minimaxCalls);
-    return best.index;
-  }
-
-  // Minimax algorithm with alpha-beta pruning
-  // Returns {score, index}
-  function minimax(newBoard, player, isMaximizing, alpha, beta) {
-    minimaxCalls++;
-    // Base cases
-    if (checkWinOnBoard(newBoard, 'X')) return {score: -10};
-    if (checkWinOnBoard(newBoard, 'O')) return {score: 10};
-    if (newBoard.every(cell => cell !== null)) return {score: 0};
-
-    const freeSpots = newBoard.map((v,i) => v === null ? i : null).filter(i => i !== null);
-    let bestMove = {score: isMaximizing ? -Infinity : Infinity, index: null};
-
-    for (let i of freeSpots) {
-      newBoard[i] = player;
-      let result = minimax(newBoard, player === 'O' ? 'X' : 'O', !isMaximizing, alpha, beta);
-      newBoard[i] = null;
-      if (isMaximizing) {
-        if (result.score > bestMove.score) {
-          bestMove.score = result.score;
-          bestMove.index = i;
-        }
-        alpha = Math.max(alpha, bestMove.score);
-      } else {
-        if (result.score < bestMove.score) {
-          bestMove.score = result.score;
-          bestMove.index = i;
-        }
-        beta = Math.min(beta, bestMove.score);
-      }
-      if (beta <= alpha) break; // pruning
+  function resetTimer() {
+    if(gameActive) {
+      startTimer();
+    } else {
+      clearInterval(timerId);
+      timerEl.textContent = '';
     }
-    return bestMove;
+  }
+  function stopTimer() {
+    clearInterval(timerId);
+    timerEl.textContent = '';
+  }
+  // If time runs out, switch turn automatically
+  function forceSwitchTurn() {
+    if(!gameActive) return;
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    messageEl.textContent = `Player ${currentPlayer}'s turn (time penalty)`;
+    updateControls();
+    resetTimer();
   }
 
-  // Check win on a given board (for minimax)
-  function checkWinOnBoard(testBoard, player) {
-    const winLen = gridSize === 3 ? 3 : 4;
-    function checkLineOnBoard(startX, startY, dx, dy) {
-      for (let i = 0; i < winLen; i++) {
-        let x = startX + i*dx;
-        let y = startY + i*dy;
-        if (testBoard[y*gridSize + x] !== player) return false;
-      }
-      return true;
-    }
-    for (let y = 0; y < gridSize; y++) {
-      for (let x = 0; x < gridSize; x++) {
-        if (testBoard[y*gridSize + x] !== player) continue;
-        if (x <= gridSize - winLen && checkLineOnBoard(x, y, 1, 0)) return true;
-        if (y <= gridSize - winLen && checkLineOnBoard(x, y, 0, 1)) return true;
-        if (x <= gridSize - winLen && y <= gridSize - winLen && checkLineOnBoard(x, y, 1, 1)) return true;
-        if (x <= gridSize - winLen && y >= winLen - 1 && checkLineOnBoard(x, y, 1, -1)) return true;
-      }
-    }
-    return false;
+  // Initialize a fresh game
+  function initGame() {
+    board = new Array(gridSize * gridSize).fill(null);
+    currentPlayer = 'X';
+    gameActive = true;
+    history = [];
+    historyIndex = -1;
+    addHistory(board, currentPlayer, null);
+    renderBoard();
+    updateScoreboard();
+    updateMessage();
+    updateControls();
+    resetTimer();
   }
 
-  // Determine AI move based on difficulty
-  function getAIMove() {
-    if (gameMode === 'easy-ai') {
-      return getRandomMove();
-    } else if (gameMode === 'hard-ai') {
-      return getBestMove();
-    }
-    return null;
-  }
+  createBoard();
+  initGame();
 
-  // Play sound helper
-  function playSound(sound) {
-    if (!sound) return;
-    sound.pause();
-    sound.currentTime = 0;
-    sound.volume = 0.3;
-    sound.play().catch(() => {});
-  }
-
-  // Update controls enabled/disabled states
-  function updateControls() {
-    undoBtn.disabled = undoStack.length === 0 || !gameActive;
-  }
-
-  // Event Listeners
-  gridSizeSelect.addEventListener('change', () => {
-    init();
-  });
-  gameModeSelect.addEventListener('change', () => {
-    init();
-  });
-  undoBtn.addEventListener('click', () => {
-    undoMove();
-  });
-  restartBtn.addEventListener('click', () => {
-    init();
-  });
-
-  // Initialize on load
-  init();
 })();
 </script>
 
