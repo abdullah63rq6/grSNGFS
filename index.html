@@ -3,666 +3,639 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ultimate Purple Tic Tac Toe</title>
+<title>Purple Tic Tac Toe</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
-
-  /* --- Body & Layout --- */
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
   body {
     margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #6a1b9a, #8e24aa);
-    color: #e0c3fc;
+    background: linear-gradient(135deg, #3a0ca3, #720026);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #eee;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
     user-select: none;
-    overflow-x: hidden;
   }
-
   h1 {
-    font-size: 3rem;
-    margin: 20px 0 10px;
-    text-shadow: 0 0 10px #cba0f4;
-    font-weight: 800;
-    letter-spacing: 2px;
-  }
-
-  /* --- Controls --- */
-  #controls {
-    margin: 25px 0;
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-  }
-
-  label {
-    font-weight: 700;
-    font-size: 1rem;
-  }
-
-  select, button {
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    font-weight: 700;
-    cursor: pointer;
-    background: linear-gradient(145deg, #9c27b0, #6a1b9a);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    transition: background 0.3s, transform 0.2s;
-  }
-
-  select:hover, button:hover {
-    background: linear-gradient(145deg, #ab47bc, #8e24aa);
-    transform: scale(1.05);
-  }
-
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* --- Game Board --- */
-  #game {
-    display: grid;
-    grid-template-columns: repeat(3, 130px);
-    grid-template-rows: repeat(3, 130px);
-    gap: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 0 40px rgba(106, 27, 154, 0.4);
-  }
-
-  /* --- Cells --- */
-  .cell {
-    background: linear-gradient(145deg, #ba68c8, #9c27b0);
-    border-radius: 18px;
-    box-shadow:
-      inset 0 0 6px #fff8,
-      0 8px 18px rgba(106, 27, 154, 0.4);
-    font-size: 4rem;
+    margin-top: 20px;
     font-weight: 900;
+    text-shadow: 0 0 10px #b37fff;
+    letter-spacing: 0.1em;
+  }
+
+  /* Container */
+  #game-container {
+    background: #1a0b3b;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow:
+      0 0 20px 5px #a65cd1,
+      inset 0 0 15px 5px #8a2be2;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  /* Board */
+  #board {
+    display: grid;
+    gap: 10px;
+    margin: 20px 0;
+  }
+
+  /* Cells */
+  .cell {
+    background: #330066;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 3rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
-    color: #e1bee7;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #c5a3ff;
+    box-shadow:
+      0 0 10px 2px #a475ff inset,
+      0 0 15px 3px #a475ff;
+    transition: background 0.3s, color 0.3s, transform 0.3s;
     user-select: none;
     position: relative;
   }
-
-  .cell:hover:not(.filled):not(.disabled) {
-    transform: scale(1.1);
-    box-shadow: 0 0 20px 8px #d1c4e9, inset 0 0 10px #b39ddb;
-  }
-
-  /* --- Mark Styles --- */
-  .cell.x {
-    color: #f3e5f5;
-    text-shadow: 0 0 10px #ce93d8;
-  }
-  .cell.o {
-    color: #b39ddb;
-    text-shadow: 0 0 15px #9575cd;
-  }
-
-  /* --- Winning Cells Animation --- */
-  .cell.winning {
-    animation: pulseGlow 1.5s infinite;
-    box-shadow: 0 0 25px 10px #ba68c8;
-    color: #ede7f6 !important;
-  }
-
-  @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 25px 10px #ba68c8; }
-    50% { box-shadow: 0 0 40px 15px #ce93d8; }
-  }
-
-  /* --- End Game Modal --- */
-  #endGameModal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 340px;
-    background: linear-gradient(145deg, #ab47bc, #8e24aa);
-    border-radius: 24px;
-    padding: 28px;
-    color: #fff;
-    text-align: center;
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-    box-shadow: 0 0 30px rgba(106, 27, 154, 0.5);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-    z-index: 9999;
-  }
-
-  #endGameModal.show {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-
-  #endGameModal h2 {
-    margin-bottom: 20px;
-    font-size: 1.6rem;
-    font-weight: 700;
-  }
-
-  #playAgainBtn {
-    margin-top: 20px;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 25px;
-    background: linear-gradient(145deg, #6a1b9a, #9c27b0);
-    color: #fff;
-    font-weight: 700;
-    font-size: 1.2rem;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(106, 27, 154, 0.3);
-    transition: background 0.3s, transform 0.2s;
-  }
-
-  #playAgainBtn:hover {
-    background: linear-gradient(145deg, #8e24aa, #ab47bc);
+  .cell:hover {
+    background: #6a4caa;
+    color: #d8caff;
+    box-shadow:
+      0 0 15px 5px #c79fff inset,
+      0 0 20px 8px #c79fff;
     transform: scale(1.05);
   }
-
-  /* --- Confetti Canvas --- */
-  #confetti-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    z-index: 10000;
-    width: 100vw;
-    height: 100vh;
+  .cell.disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+  .cell.winning-cell {
+    animation: glowPulse 1.5s infinite alternate;
+    box-shadow:
+      0 0 20px 5px #d4a6ff,
+      0 0 30px 10px #d4a6ff inset;
+    color: #fff;
   }
 
-  /* --- Responsive --- */
-  @media(max-width: 480px) {
-    #game {
-      grid-template-columns: repeat(3, 90px);
-      grid-template-rows: repeat(3, 90px);
-      gap: 12px;
+  @keyframes glowPulse {
+    0% {
+      box-shadow:
+        0 0 20px 5px #d4a6ff,
+        0 0 30px 10px #d4a6ff inset;
+    }
+    100% {
+      box-shadow:
+        0 0 40px 10px #f2dbff,
+        0 0 50px 20px #f2dbff inset;
+    }
+  }
+
+  /* Controls Panel */
+  #controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+  select, button {
+    background: #5a33a3;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    color: #e8d7ff;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 0 10px 3px #9d7eff;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  select:hover, button:hover {
+    background: #7a55d1;
+    box-shadow: 0 0 15px 6px #b19eff;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* Timer */
+  #timer {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 10px 0;
+    text-align: center;
+    color: #d4b3ff;
+    text-shadow: 0 0 6px #bb99ff;
+  }
+
+  /* Scoreboard */
+  #scoreboard {
+    background: #2a1a4a;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px 3px #9a7eff inset;
+  }
+  #scoreboard h2 {
+    margin: 0 0 10px 0;
+    text-align: center;
+    font-weight: 900;
+    text-shadow: 0 0 6px #d7bfff;
+  }
+  #scoreboard .stats {
+    display: flex;
+    justify-content: space-around;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  #scoreboard .stats div {
+    padding: 6px 12px;
+    background: #4a3a7a;
+    border-radius: 8px;
+    box-shadow: 0 0 8px 2px #b9aaff inset;
+  }
+
+  /* Footer */
+  footer {
+    margin: 15px;
+    font-size: 0.9rem;
+    color: #c9b3ff;
+    text-align: center;
+  }
+
+  /* Responsive */
+  @media (max-width: 520px) {
+    #game-container {
+      max-width: 95vw;
       padding: 15px;
     }
     .cell {
-      font-size: 3rem;
-      border-radius: 14px;
+      font-size: 2.5rem;
+    }
+    select, button {
+      font-size: 0.9rem;
+      padding: 7px 12px;
     }
   }
 </style>
 </head>
 <body>
 
-<h1>Ultimate Purple Tic Tac Toe</h1>
+<h1>Purple Tic Tac Toe</h1>
 
-<div id="controls" aria-label="Game controls">
-  <label for="difficulty">Difficulty:</label>
-  <select id="difficulty" aria-controls="game" aria-label="Select AI difficulty">
-    <option value="easy">Easy</option>
-    <option value="medium" selected>Medium</option>
-    <option value="hard">Hard</option>
-  </select>
-  <button id="undoBtn" aria-label="Undo last move" disabled>Undo</button>
-  <button id="redoBtn" aria-label="Redo move" disabled>Redo</button>
-  <button id="restartBtn" aria-label="Restart game">Restart</button>
+<div id="game-container">
+
+  <div id="controls">
+    <select id="grid-size">
+      <option value="3" selected>3 x 3 Grid</option>
+      <option value="4">4 x 4 Grid</option>
+    </select>
+
+    <select id="game-mode">
+      <option value="pvp" selected>Player vs Player</option>
+      <option value="easy-ai">Player vs AI (Easy)</option>
+      <option value="hard-ai">Player vs AI (Hard)</option>
+    </select>
+
+    <button id="undo-btn" disabled>Undo Move</button>
+    <button id="restart-btn">Restart Game</button>
+  </div>
+
+  <div id="timer">Time left: <span id="time-left">10</span>s</div>
+
+  <div id="board"></div>
+
+  <div id="scoreboard">
+    <h2>Scoreboard</h2>
+    <div class="stats">
+      <div>Player X: <span id="score-x">0</span></div>
+      <div>Player O: <span id="score-o">0</span></div>
+      <div>Draws: <span id="score-draw">0</span></div>
+    </div>
+  </div>
+
 </div>
 
-<div id="game" role="grid" aria-label="Tic Tac Toe Board" tabindex="0">
-  <!-- 9 cells -->
-  <button class="cell" role="gridcell" aria-label="Row 1 Column 1" tabindex="0"></button>
-  <button class="cell" role="gridcell" aria-label="Row 1 Column 2" tabindex="0"></button>
-  <button class="cell" role="gridcell" aria-label="Row 1 Column 3" tabindex="0"></button>
-  <button class="cell" role="gridcell" aria-label="Row 2 Column 1" tabindex="0"></button>
-  <button class="cell" role="gridcell" aria-label="Row 2 Column 2" tabindex="0"></button>
-  <button class="cell" role="gridcell" aria-label="Row 2 Column 3" tabindex="0"></button>
-  <button class="cell" role="gridcell" aria-label="Row 3 Column 1" tabindex="0"></button>
-  <button class="cell" role="gridcell" aria-label="Row 3 Column 2" tabindex="0"></button>
-  <button class="cell" role="gridcell" aria-label="Row 3 Column 3" tabindex="0"></button>
-</div>
+<footer>Made with 💜 by ChatGPT</footer>
 
-<!-- End game modal -->
-<div id="endGameModal" role="dialog" aria-modal="true" aria-labelledby="endGameMessage" tabindex="-1">
-  <h2 id="endGameMessage"></h2>
-  <button id="playAgainBtn">Play Again</button>
-</div>
-
-<!-- Confetti canvas -->
-<canvas id="confetti-canvas" aria-hidden="true"></canvas>
+<!-- Audio -->
+<audio id="sound-place" src="https://freesound.org/data/previews/109/109662_945474-lq.mp3" preload="auto"></audio>
+<audio id="sound-win" src="https://freesound.org/data/previews/276/276020_5121236-lq.mp3" preload="auto"></audio>
+<audio id="sound-draw" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3" preload="auto"></audio>
 
 <script>
-  // --- Variables and Game State ---
-  const cells = Array.from(document.querySelectorAll('.cell'));
-  const game = document.getElementById('game');
-  const difficultySelect = document.getElementById('difficulty');
-  const undoBtn = document.getElementById('undoBtn');
-  const redoBtn = document.getElementById('redoBtn');
-  const restartBtn = document.getElementById('restartBtn');
-  const modal = document.getElementById('endGameModal');
-  const endGameMessage = document.getElementById('endGameMessage');
-  const playAgainBtn = document.getElementById('playAgainBtn');
-  const confettiCanvas = document.getElementById('confetti-canvas');
-  const ctx = confettiCanvas.getContext('2d');
+(() => {
+  // Constants and state
+  const boardEl = document.getElementById('board');
+  const gridSizeSelect = document.getElementById('grid-size');
+  const gameModeSelect = document.getElementById('game-mode');
+  const undoBtn = document.getElementById('undo-btn');
+  const restartBtn = document.getElementById('restart-btn');
+  const timerEl = document.getElementById('time-left');
+  const scoreXEl = document.getElementById('score-x');
+  const scoreOEl = document.getElementById('score-o');
+  const scoreDrawEl = document.getElementById('score-draw');
 
-  let board = Array(9).fill(null);
-  let playerTurn = true; // player 'X'
+  // Sounds
+  const soundPlace = document.getElementById('sound-place');
+  const soundWin = document.getElementById('sound-win');
+  const soundDraw = document.getElementById('sound-draw');
+
+  const MOVE_TIME_LIMIT = 10; // seconds per move
+
+  let gridSize = 3;
+  let gameMode = 'pvp'; // 'pvp', 'easy-ai', 'hard-ai'
+  let board = [];
+  let currentPlayer = 'X';
   let gameActive = true;
-  let moveHistory = [];
-  let redoHistory = [];
-  let currentDifficulty = difficultySelect.value;
-  let winningLine = [];
-  let confettiRunning = false;
+  let timer = MOVE_TIME_LIMIT;
+  let timerInterval = null;
+  let undoStack = [];
+  let scores = { X: 0, O: 0, draws: 0 };
 
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // Minimax cache
+  let minimaxCalls = 0;
 
-  function playBeep(frequency = 440, duration = 150) {
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    oscillator.type = 'sine';
-    oscillator.frequency.value = frequency;
-    oscillator.start();
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + duration / 1000);
+  // Initialize game
+  function init() {
+    gridSize = parseInt(gridSizeSelect.value);
+    gameMode = gameModeSelect.value;
+    board = Array(gridSize * gridSize).fill(null);
+    currentPlayer = 'X';
+    gameActive = true;
+    undoStack = [];
+    resetTimer();
+    renderBoard();
+    updateControls();
   }
 
-  // --- Confetti Particles ---
-  class ConfettiParticle {
-    constructor(canvasWidth, canvasHeight) {
-      this.x = Math.random() * canvasWidth;
-      this.y = Math.random() * canvasHeight - canvasHeight;
-      this.size = Math.random() * 6 + 4;
-      this.gravity = 0.3 + Math.random() * 0.3;
-      this.color = `hsl(${Math.random() * 60 + 270}, 80%, 70%)`; // purple hues
-      this.rotation = Math.random() * 360;
-      this.rotationSpeed = (Math.random() - 0.5) * 10;
-      this.velocityX = (Math.random() - 0.5) * 2;
-      this.velocityY = Math.random() * 2 + 1;
-    }
+  // Create board UI
+  function renderBoard() {
+    boardEl.innerHTML = '';
+    boardEl.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    boardEl.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
 
-    update() {
-      this.velocityY += this.gravity;
-      this.x += this.velocityX;
-      this.y += this.velocityY;
-      this.rotation += this.rotationSpeed;
-
-      if (this.y > window.innerHeight) {
-        this.x = Math.random() * window.innerWidth;
-        this.y = -this.size;
-        this.velocityY = Math.random() * 2 + 1;
+    for (let i = 0; i < board.length; i++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.dataset.index = i;
+      cell.setAttribute('aria-label', `Cell ${i + 1}`);
+      cell.setAttribute('role', 'button');
+      cell.tabIndex = 0;
+      cell.addEventListener('click', () => handleCellClick(i));
+      cell.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleCellClick(i);
+        }
+      });
+      cell.textContent = board[i] || '';
+      if (!gameActive || board[i]) {
+        cell.classList.add('disabled');
       }
-    }
-
-    draw(ctx) {
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.rotation * Math.PI / 180);
-      ctx.fillStyle = this.color;
-      ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-      ctx.restore();
+      boardEl.appendChild(cell);
     }
   }
 
-  let confettiParticles = [];
-
-  function setupConfetti() {
-    confettiCanvas.width = window.innerWidth;
-    confettiCanvas.height = window.innerHeight;
-    confettiParticles = Array.from({ length: 120 }, () => new ConfettiParticle(confettiCanvas.width, confettiCanvas.height));
-  }
-  setupConfetti();
-  window.addEventListener('resize', setupConfetti);
-
-  function runConfetti() {
-    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    confettiParticles.forEach(p => {
-      p.update();
-      p.draw(ctx);
-    });
-    if (confettiRunning) requestAnimationFrame(runConfetti);
-  }
-
-  function startConfetti() {
-    confettiRunning = true;
-    runConfetti();
-    setTimeout(() => { confettiRunning = false; ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); }, 5000);
-  }
-
-  // --- Game Logic ---
-  const winningCombos = [
-    [0, 1, 2], [3, 4, 5],
-    [6, 7, 8], [0, 3, 6],
-    [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6]
-  ];
-
-  function checkWin(board, player) {
-    for (const combo of winningCombos) {
-      if (combo.every(i => board[i] === player)) {
-        return combo;
-      }
+  // Handle click on a cell
+  function handleCellClick(index) {
+    if (!gameActive) return;
+    if (board[index]) return; // already taken
+    makeMove(index, currentPlayer);
+    playSound(soundPlace);
+    if (checkWin(currentPlayer)) {
+      endGame(`${currentPlayer} wins!`);
+      scores[currentPlayer]++;
+      updateScoreboard();
+      playSound(soundWin);
+      animateWinningCells();
+      return;
     }
-    return null;
+    if (boardFull()) {
+      endGame("It's a draw!");
+      scores.draws++;
+      updateScoreboard();
+      playSound(soundDraw);
+      return;
+    }
+    switchPlayer();
+    resetTimer();
+
+    // If AI turn, trigger AI move after short delay
+    if (gameActive && isAITurn()) {
+      undoBtn.disabled = true;
+      setTimeout(() => {
+        const aiMoveIndex = getAIMove();
+        makeMove(aiMoveIndex, currentPlayer);
+        playSound(soundPlace);
+        if (checkWin(currentPlayer)) {
+          endGame(`${currentPlayer} wins!`);
+          scores[currentPlayer]++;
+          updateScoreboard();
+          playSound(soundWin);
+          animateWinningCells();
+          return;
+        }
+        if (boardFull()) {
+          endGame("It's a draw!");
+          scores.draws++;
+          updateScoreboard();
+          playSound(soundDraw);
+          return;
+        }
+        switchPlayer();
+        resetTimer();
+        undoBtn.disabled = false;
+      }, 800);
+    }
   }
 
-  function checkDraw(board) {
+  // Make a move on the board
+  function makeMove(index, player) {
+    board[index] = player;
+    undoStack.push({index, player});
+    renderBoard();
+    undoBtn.disabled = false;
+  }
+
+  // Undo the last move (and AI move if applicable)
+  function undoMove() {
+    if (undoStack.length === 0 || !gameActive) return;
+    // Undo last player move
+    const lastMove = undoStack.pop();
+    board[lastMove.index] = null;
+
+    // If AI mode and last move was by AI, undo that too
+    if ((gameMode === 'easy-ai' || gameMode === 'hard-ai') && undoStack.length > 0 && lastMove.player !== currentPlayer) {
+      const aiLastMove = undoStack.pop();
+      board[aiLastMove.index] = null;
+    }
+
+    gameActive = true;
+    renderBoard();
+    undoBtn.disabled = undoStack.length === 0;
+    resetTimer();
+  }
+
+  // Switch player turns
+  function switchPlayer() {
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+  }
+
+  // Check if board is full
+  function boardFull() {
     return board.every(cell => cell !== null);
   }
 
-  function updateBoardUI() {
-    cells.forEach((cell, idx) => {
-      cell.textContent = board[idx] === 'X' ? '✕' : board[idx] === 'O' ? '◯' : '';
-      cell.classList.remove('x', 'o', 'filled', 'winning', 'disabled');
-      if (board[idx]) {
-        cell.classList.add(board[idx].toLowerCase(), 'filled');
+  // Check win conditions for current player
+  function checkWin(player) {
+    const winLen = gridSize === 3 ? 3 : 4;
+
+    // Helper: check line starting at startIndex with step (dx, dy)
+    function checkLine(startX, startY, dx, dy) {
+      for (let i = 0; i < winLen; i++) {
+        let x = startX + i*dx;
+        let y = startY + i*dy;
+        if (board[y*gridSize + x] !== player) return false;
       }
-      if (!gameActive) cell.classList.add('disabled');
-    });
-  }
-
-  function highlightWinningCells(combo) {
-    combo.forEach(i => cells[i].classList.add('winning'));
-  }
-
-  // --- Undo / Redo ---
-  function updateUndoRedoButtons() {
-    undoBtn.disabled = moveHistory.length === 0;
-    redoBtn.disabled = redoHistory.length === 0;
-  }
-
-  // --- Player Move ---
-  function playerMove(index) {
-    if (!gameActive || board[index]) return false;
-    board[index] = 'X';
-    moveHistory.push({ board: [...board], player: 'X', index });
-    redoHistory = [];
-    playBeep(550);
-    updateBoardUI();
-    if (checkGameStatus('X')) return;
-    playerTurn = false;
-    aiMove();
-    updateUndoRedoButtons();
-    return true;
-  }
-
-  // --- AI Moves ---
-  function aiMove() {
-    setTimeout(() => {
-      if (!gameActive) return;
-      let moveIndex;
-      switch (currentDifficulty) {
-        case 'easy': moveIndex = easyAIMove(board, 'O'); break;
-        case 'medium': moveIndex = mediumAIMove(board, 'O'); break;
-        case 'hard': moveIndex = hardAIMove(board, 'O'); break;
-        default: moveIndex = mediumAIMove(board, 'O');
-      }
-      board[moveIndex] = 'O';
-      moveHistory.push({ board: [...board], player: 'O', index: moveIndex });
-      playBeep(330);
-      updateBoardUI();
-      checkGameStatus('O');
-      playerTurn = true;
-      updateUndoRedoButtons();
-    }, 700);
-  }
-
-  // AI Strategies
-  function easyAIMove(board, player) {
-    const available = board.map((v, i) => v === null ? i : null).filter(Boolean);
-    return available[Math.floor(Math.random() * available.length)];
-  }
-
-  function mediumAIMove(board, player) {
-    // Win
-    for (let i = 0; i < 9; i++) {
-      if (!board[i]) {
-        board[i] = player;
-        if (checkWin(board, player)) {
-          board[i] = null; return i;
-        }
-        board[i] = null;
-      }
-    }
-    // Block
-    const opponent = player === 'X' ? 'O' : 'X';
-    for (let i = 0; i < 9; i++) {
-      if (!board[i]) {
-        board[i] = opponent;
-        if (checkWin(board, opponent)) {
-          board[i] = null; return i;
-        }
-        board[i] = null;
-      }
-    }
-    // Preferred moves
-    const preferred = [4, 0, 2, 6, 8, 1, 3, 5, 7];
-    for (let move of preferred) {
-      if (!board[move]) return move;
-    }
-    return easyAIMove(board, player);
-  }
-
-  function hardAIMove(board, player) {
-    function minimax(newBoard, currentPlayer) {
-      const availSpots = newBoard.map((v, i) => v === null ? i : null).filter(Boolean);
-      if (checkWin(newBoard, 'X')) return { score: -10 };
-      if (checkWin(newBoard, 'O')) return { score: 10 };
-      if (availSpots.length === 0) return { score: 0 };
-
-      const moves = [];
-      for (const i of availSpots) {
-        newBoard[i] = currentPlayer;
-        const result = minimax(newBoard, currentPlayer === 'O' ? 'X' : 'O');
-        moves.push({ index: i, score: result.score });
-        newBoard[i] = null;
-      }
-
-      let bestMove;
-      if (currentPlayer === 'O') {
-        let maxScore = -Infinity;
-        for (const move of moves) {
-          if (move.score > maxScore) {
-            maxScore = move.score;
-            bestMove = move;
-          }
-        }
-      } else {
-        let minScore = Infinity;
-        for (const move of moves) {
-          if (move.score < minScore) {
-            minScore = move.score;
-            bestMove = move;
-          }
-        }
-      }
-      return bestMove;
-    }
-    const best = minimax([...board], player);
-    return best.index;
-  }
-
-  // --- Game Status ---
-  function checkGameStatus(currentPlayer) {
-    const winCombo = checkWin(board, currentPlayer);
-    if (winCombo) {
-      gameActive = false;
-      highlightWinningCells(winCombo);
-      showEndGameModal(`${currentPlayer === 'X' ? 'You Win! 🎉' : 'AI Wins! 💻'}`);
-      startConfetti();
       return true;
-    } else if (checkDraw(board)) {
-      gameActive = false;
-      showEndGameModal("It's a Draw! 🤝");
-      return true;
+    }
+
+    // Check rows, columns, diagonals for a win line
+    for (let y = 0; y < gridSize; y++) {
+      for (let x = 0; x < gridSize; x++) {
+        if (board[y*gridSize + x] !== player) continue;
+
+        // Horizontal
+        if (x <= gridSize - winLen && checkLine(x, y, 1, 0)) {
+          markWinningCells(x, y, 1, 0);
+          return true;
+        }
+        // Vertical
+        if (y <= gridSize - winLen && checkLine(x, y, 0, 1)) {
+          markWinningCells(x, y, 0, 1);
+          return true;
+        }
+        // Diagonal down-right
+        if (x <= gridSize - winLen && y <= gridSize - winLen && checkLine(x, y, 1, 1)) {
+          markWinningCells(x, y, 1, 1);
+          return true;
+        }
+        // Diagonal up-right
+        if (x <= gridSize - winLen && y >= winLen - 1 && checkLine(x, y, 1, -1)) {
+          markWinningCells(x, y, 1, -1);
+          return true;
+        }
+      }
     }
     return false;
   }
 
-  // --- Modal ---
-  function showEndGameModal(message) {
-    endGameMessage.textContent = message;
-    modal.classList.add('show');
-    modal.focus();
-  }
-
-  function hideEndGameModal() {
-    modal.classList.remove('show');
-    game.focus();
-  }
-
-  // --- Undo / Redo ---
-  function undoMove() {
-    if (moveHistory.length === 0) return;
-    const last = moveHistory.pop();
-    redoHistory.push(last);
-    if (moveHistory.length === 0) {
-      board = Array(9).fill(null);
-      gameActive = true;
-      playerTurn = true;
-    } else {
-      board = [...moveHistory[moveHistory.length - 1].board];
-      gameActive = true;
-      playerTurn = moveHistory[moveHistory.length - 1].player === 'X';
+  // Mark winning cells for animation
+  let winningCellsIndices = [];
+  function markWinningCells(startX, startY, dx, dy) {
+    winningCellsIndices = [];
+    const winLen = gridSize === 3 ? 3 : 4;
+    for (let i = 0; i < winLen; i++) {
+      let x = startX + i*dx;
+      let y = startY + i*dy;
+      winningCellsIndices.push(y*gridSize + x);
     }
-    updateBoardUI();
-    updateUndoRedoButtons();
-    hideEndGameModal();
   }
 
-  function redoMove() {
-    if (redoHistory.length === 0) return;
-    const next = redoHistory.pop();
-    moveHistory.push(next);
-    board = [...next.board];
-    gameActive = true;
-    playerTurn = next.player === 'X';
-    updateBoardUI();
-    updateUndoRedoButtons();
-    hideEndGameModal();
-  }
-
-  function restartGame() {
-    board = Array(9).fill(null);
-    moveHistory = [];
-    redoHistory = [];
-    gameActive = true;
-    playerTurn = true;
-    updateBoardUI();
-    updateUndoRedoButtons();
-    hideEndGameModal();
-  }
-
-  // --- Event Listeners ---
-  cells.forEach((cell, i) => {
-    cell.addEventListener('click', () => { if (playerTurn) playerMove(i); });
-    cell.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        if (playerTurn) playerMove(i);
-      }
+  // Animate winning cells glow
+  function animateWinningCells() {
+    winningCellsIndices.forEach(idx => {
+      const cell = boardEl.querySelector(`.cell[data-index='${idx}']`);
+      if(cell) cell.classList.add('winning-cell');
     });
-  });
+  }
 
-  document.getElementById('undoBtn').addEventListener('click', undoMove);
-  document.getElementById('redoBtn').addEventListener('click', redoMove);
-  document.getElementById('restartBtn').addEventListener('click', restartGame);
-  difficultySelect.addEventListener('change', e => {
-    currentDifficulty = e.target.value;
-  });
+  // End game state
+  function endGame(message) {
+    gameActive = false;
+    clearInterval(timerInterval);
+    undoBtn.disabled = true;
+    alert(message);
+  }
 
-  document.getElementById('playAgainBtn').addEventListener('click', () => {
-    restartGame();
-  });
+  // Update scoreboard UI
+  function updateScoreboard() {
+    scoreXEl.textContent = scores.X;
+    scoreOEl.textContent = scores.O;
+    scoreDrawEl.textContent = scores.draws;
+  }
 
-  // Accessibility: trap focus inside modal
-  modal.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      hideEndGameModal();
+  // Reset timer and start countdown
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timer = MOVE_TIME_LIMIT;
+    timerEl.textContent = timer;
+    if(!gameActive) return;
+    timerInterval = setInterval(() => {
+      timer--;
+      timerEl.textContent = timer;
+      if (timer <= 0) {
+        clearInterval(timerInterval);
+        alert(`Time's up! Player ${currentPlayer} missed their move.`);
+        switchPlayer();
+        resetTimer();
+
+        if (gameActive && isAITurn()) {
+          setTimeout(() => {
+            const aiMoveIndex = getAIMove();
+            makeMove(aiMoveIndex, currentPlayer);
+            playSound(soundPlace);
+            if (checkWin(currentPlayer)) {
+              endGame(`${currentPlayer} wins!`);
+              scores[currentPlayer]++;
+              updateScoreboard();
+              playSound(soundWin);
+              animateWinningCells();
+              return;
+            }
+            if (boardFull()) {
+              endGame("It's a draw!");
+              scores.draws++;
+              updateScoreboard();
+              playSound(soundDraw);
+              return;
+            }
+            switchPlayer();
+            resetTimer();
+            undoBtn.disabled = false;
+          }, 800);
+        }
+      }
+    }, 1000);
+  }
+
+  // Check if it's AI's turn
+  function isAITurn() {
+    return (gameMode === 'easy-ai' || gameMode === 'hard-ai') && currentPlayer === 'O';
+  }
+
+  // AI Move - Easy: random free cell
+  function getRandomMove() {
+    const freeIndices = board.map((v, i) => v === null ? i : null).filter(i => i !== null);
+    return freeIndices[Math.floor(Math.random() * freeIndices.length)];
+  }
+
+  // AI Move - Hard: minimax algorithm
+  function getBestMove() {
+    minimaxCalls = 0;
+    const best = minimax(board.slice(), currentPlayer, true, -Infinity, Infinity);
+    //console.log('Minimax calls:', minimaxCalls);
+    return best.index;
+  }
+
+  // Minimax algorithm with alpha-beta pruning
+  // Returns {score, index}
+  function minimax(newBoard, player, isMaximizing, alpha, beta) {
+    minimaxCalls++;
+    // Base cases
+    if (checkWinOnBoard(newBoard, 'X')) return {score: -10};
+    if (checkWinOnBoard(newBoard, 'O')) return {score: 10};
+    if (newBoard.every(cell => cell !== null)) return {score: 0};
+
+    const freeSpots = newBoard.map((v,i) => v === null ? i : null).filter(i => i !== null);
+    let bestMove = {score: isMaximizing ? -Infinity : Infinity, index: null};
+
+    for (let i of freeSpots) {
+      newBoard[i] = player;
+      let result = minimax(newBoard, player === 'O' ? 'X' : 'O', !isMaximizing, alpha, beta);
+      newBoard[i] = null;
+      if (isMaximizing) {
+        if (result.score > bestMove.score) {
+          bestMove.score = result.score;
+          bestMove.index = i;
+        }
+        alpha = Math.max(alpha, bestMove.score);
+      } else {
+        if (result.score < bestMove.score) {
+          bestMove.score = result.score;
+          bestMove.index = i;
+        }
+        beta = Math.min(beta, bestMove.score);
+      }
+      if (beta <= alpha) break; // pruning
     }
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      playAgainBtn.focus();
+    return bestMove;
+  }
+
+  // Check win on a given board (for minimax)
+  function checkWinOnBoard(testBoard, player) {
+    const winLen = gridSize === 3 ? 3 : 4;
+    function checkLineOnBoard(startX, startY, dx, dy) {
+      for (let i = 0; i < winLen; i++) {
+        let x = startX + i*dx;
+        let y = startY + i*dy;
+        if (testBoard[y*gridSize + x] !== player) return false;
+      }
+      return true;
     }
-  });
-
-  // --- Initialize ---
-  updateBoardUI();
-  updateUndoRedoButtons();
-
-  // --- Confetti ---
-  const ctx = document.getElementById('confetti-canvas').getContext('2d');
-  let particles = [];
-
-  class Particle {
-    constructor() {
-      this.reset();
-    }
-
-    reset() {
-      this.x = Math.random() * window.innerWidth;
-      this.y = Math.random() * -window.innerHeight;
-      this.size = Math.random() * 4 + 2;
-      this.color = `hsl(${Math.random() * 60 + 270}, 80%, 70%)`;
-      this.velocityX = (Math.random() - 0.5) * 2;
-      this.velocityY = Math.random() * 2 + 1;
-      this.rotation = Math.random() * 360;
-      this.rotationSpeed = (Math.random() - 0.5) * 10;
-    }
-
-    update() {
-      this.velocityY += 0.2;
-      this.x += this.velocityX;
-      this.y += this.velocityY;
-      this.rotation += this.rotationSpeed;
-      if (this.y > window.innerHeight + this.size) {
-        this.reset();
-        this.y = -this.size;
+    for (let y = 0; y < gridSize; y++) {
+      for (let x = 0; x < gridSize; x++) {
+        if (testBoard[y*gridSize + x] !== player) continue;
+        if (x <= gridSize - winLen && checkLineOnBoard(x, y, 1, 0)) return true;
+        if (y <= gridSize - winLen && checkLineOnBoard(x, y, 0, 1)) return true;
+        if (x <= gridSize - winLen && y <= gridSize - winLen && checkLineOnBoard(x, y, 1, 1)) return true;
+        if (x <= gridSize - winLen && y >= winLen - 1 && checkLineOnBoard(x, y, 1, -1)) return true;
       }
     }
+    return false;
+  }
 
-    draw() {
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.rotation * Math.PI / 180);
-      ctx.fillStyle = this.color;
-      ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-      ctx.restore();
+  // Determine AI move based on difficulty
+  function getAIMove() {
+    if (gameMode === 'easy-ai') {
+      return getRandomMove();
+    } else if (gameMode === 'hard-ai') {
+      return getBestMove();
     }
+    return null;
   }
 
-  function initConfetti() {
-    particles = Array.from({ length: 150 }, () => new Particle());
+  // Play sound helper
+  function playSound(sound) {
+    if (!sound) return;
+    sound.pause();
+    sound.currentTime = 0;
+    sound.volume = 0.3;
+    sound.play().catch(() => {});
   }
 
-  function animateConfetti() {
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    particles.forEach(p => {
-      p.update();
-      p.draw();
-    });
-    if (confettiRunning) requestAnimationFrame(animateConfetti);
+  // Update controls enabled/disabled states
+  function updateControls() {
+    undoBtn.disabled = undoStack.length === 0 || !gameActive;
   }
 
-  function startConfetti() {
-    confettiRunning = true;
-    animateConfetti();
-    setTimeout(() => {
-      confettiRunning = false;
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    }, 4000);
-  }
+  // Event Listeners
+  gridSizeSelect.addEventListener('change', () => {
+    init();
+  });
+  gameModeSelect.addEventListener('change', () => {
+    init();
+  });
+  undoBtn.addEventListener('click', () => {
+    undoMove();
+  });
+  restartBtn.addEventListener('click', () => {
+    init();
+  });
 
-  window.addEventListener('resize', initConfetti);
-  initConfetti();
-
+  // Initialize on load
+  init();
+})();
 </script>
+
 </body>
 </html>
