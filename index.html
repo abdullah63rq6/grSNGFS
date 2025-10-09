@@ -3,579 +3,624 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tic Tac Toe with Bot</title>
+<title>Ultimate Purple Tic Tac Toe</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
+  /* --- Body & Layout --- */
   body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-  }
-  #gameContainer {
-    max-width: 600px;
-    margin: auto;
-    text-align: center;
-  }
-  #board {
-    display: grid;
-    margin: 20px auto;
-    gap: 5px;
-    user-select: none;
-  }
-  .cell {
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    font-size: 2em;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #5a2a83, #b892ff);
+    color: #e6d4f0;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    min-height: 100vh;
+    user-select: none;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    font-size: 3rem;
+    margin: 20px 0 10px;
+    text-shadow: 0 0 10px #d1b3ff;
+    font-weight: 800;
+  }
+
+  /* --- Game Board --- */
+  #game {
+    display: grid;
+    grid-template-columns: repeat(3, 130px);
+    grid-template-rows: repeat(3, 130px);
+    gap: 20px;
+    background: rgba(255 255 255 / 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 0 40px 12px #5a2a83aa;
+  }
+
+  /* --- Cells --- */
+  .cell {
+    background: linear-gradient(145deg, #a67cff, #8a53d5);
+    border-radius: 18px;
+    box-shadow:
+      inset 0 0 6px #fff8,
+      0 8px 18px #5a2a83cc;
+    font-size: 5rem;
+    font-weight: 900;
+    display: flex;
     justify-content: center;
+    align-items: center;
     cursor: pointer;
-    height: 60px;
-    width: 60px;
+    color: #d9b3ff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
   }
-  .cell.blocked {
-    background: #666;
-    cursor: not-allowed;
+
+  .cell:hover:not(.filled):not(.disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 0 18px 5px #b991ffcc, inset 0 0 10px #c8aaff88;
   }
+
+  .cell.x {
+    color: #d1a3ff;
+    text-shadow: 0 0 15px #c477ff;
+    font-family: 'Segoe UI Symbol', sans-serif;
+  }
+
+  .cell.o {
+    color: #512da8;
+    text-shadow: 0 0 20px #7e57c2;
+    font-family: 'Segoe UI Symbol', sans-serif;
+  }
+
+  /* --- Winning cells animation --- */
+  .cell.winning {
+    animation: pulseGlow 1.5s ease-in-out infinite;
+    box-shadow: 0 0 25px 10px #bb86fc;
+    color: #e0c3fc !important;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 25px 10px #bb86fc; }
+    50% { box-shadow: 0 0 40px 15px #d1a3ff; }
+  }
+
+  /* --- Controls Panel --- */
   #controls {
-    margin-bottom: 10px;
+    margin: 25px 0;
+    display: flex;
+    gap: 20px;
+    align-items: center;
   }
-  button, select {
-    margin: 5px;
-    padding: 5px 10px;
+
+  label {
+    font-weight: 700;
   }
+
+  select, button {
+    border: none;
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #7e57c2;
+    color: white;
+    box-shadow: 0 5px 18px #5a2a83bb;
+    transition: background-color 0.3s ease;
+  }
+
+  select:hover, button:hover {
+    background-color: #512da8;
+  }
+
+  /* --- Modal for Game End --- */
   #endGameModal {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    align-items: center;
-    justify-content: center;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    background: linear-gradient(145deg, #7e57c2, #b392ff);
+    border-radius: 24px;
+    padding: 28px;
+    color: #fff;
+    text-align: center;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    box-shadow: 0 0 20px 15px #5a2a83cc;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    z-index: 9999;
+    user-select: none;
+  }
+
+  #endGameModal.show {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  #endGameModal button {
+    margin-top: 20px;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 25px;
+    background-color: #512da8;
     color: white;
-    font-size: 1.5em;
-    z-index: 1000;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 5px 18px #5a2a83bb;
+    transition: background-color 0.3s ease;
   }
-  #endGameModal div {
-    background: #333;
-    padding: 20px;
-    border-radius: 8px;
+
+  #endGameModal button:hover {
+    background-color: #7e57c2;
   }
-  #scoreboard {
-    margin-top: 10px;
-    font-weight: bold;
+
+  /* --- Confetti Canvas --- */
+  #confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 10000;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* --- Responsive --- */
+  @media(max-width: 480px) {
+    #game {
+      grid-template-columns: repeat(3, 90px);
+      grid-template-rows: repeat(3, 90px);
+      gap: 12px;
+      padding: 15px;
+    }
+    .cell {
+      font-size: 3.5rem;
+      border-radius: 14px;
+    }
   }
 </style>
 </head>
 <body>
-<div id="gameContainer">
-  <h1>Tic Tac Toe with Bot</h1>
 
-  <div id="controls">
-    <label for="playerCount">Players:</label>
-    <select id="playerCount">
-      <option value="1">1 (Player vs Player)</option>
-      <option value="2" selected>2 (Player vs Player)</option>
-    </select>
+<h1>Ultimate Purple Tic Tac Toe</h1>
 
-    <label>
-      <input type="checkbox" id="playVsBot" /> Play vs Bot
-    </label>
-
-    <label for="botDifficulty">Bot Difficulty:</label>
-    <select id="botDifficulty" disabled>
-      <option value="easy">Easy</option>
-      <option value="medium" selected>Medium</option>
-      <option value="hard">Hard</option>
-    </select>
-
-    <label for="boardSize">Board Size:</label>
-    <select id="boardSize">
-      <option value="3" selected>3x3</option>
-      <option value="4">4x4</option>
-      <option value="5">5x5</option>
-    </select>
-
-    <button id="startBtn">Start Game</button>
-    <button id="powerupBtn" disabled>Use Power-Up</button>
-  </div>
-
-  <div id="timer">Time left: <span id="timerValue">10</span>s</div>
-
-  <div id="board"></div>
-
-  <div id="scoreboard">Player 1: 0 | Player 2: 0</div>
+<div id="controls" aria-label="Game controls">
+  <label for="difficulty">Difficulty:</label>
+  <select id="difficulty" aria-controls="game" aria-label="Select AI difficulty">
+    <option value="easy">Easy</option>
+    <option value="medium" selected>Medium</option>
+    <option value="hard">Hard</option>
+  </select>
+  <button id="undoBtn" aria-label="Undo last move" disabled>Undo</button>
+  <button id="redoBtn" aria-label="Redo move" disabled>Redo</button>
+  <button id="restartBtn" aria-label="Restart game">Restart</button>
 </div>
 
-<div id="endGameModal">
-  <div>
-    <div id="endGameMessage"></div>
-    <button id="closeModalBtn">Close</button>
-  </div>
+<div id="game" role="grid" aria-label="Tic Tac Toe Board" tabindex="0">
+  <!-- 9 cells -->
+  <button class="cell" role="gridcell" aria-label="Row 1 Column 1" tabindex="0"></button>
+  <button class="cell" role="gridcell" aria-label="Row 1 Column 2" tabindex="0"></button>
+  <button class="cell" role="gridcell" aria-label="Row 1 Column 3" tabindex="0"></button>
+
+  <button class="cell" role="gridcell" aria-label="Row 2 Column 1" tabindex="0"></button>
+  <button class="cell" role="gridcell" aria-label="Row 2 Column 2" tabindex="0"></button>
+  <button class="cell" role="gridcell" aria-label="Row 2 Column 3" tabindex="0"></button>
+
+  <button class="cell" role="gridcell" aria-label="Row 3 Column 1" tabindex="0"></button>
+  <button class="cell" role="gridcell" aria-label="Row 3 Column 2" tabindex="0"></button>
+  <button class="cell" role="gridcell" aria-label="Row 3 Column 3" tabindex="0"></button>
 </div>
+
+<!-- End game modal -->
+<div id="endGameModal" role="dialog" aria-modal="true" aria-labelledby="endGameMessage" tabindex="-1">
+  <h2 id="endGameMessage"></h2>
+  <button id="playAgainBtn">Play Again</button>
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas" aria-hidden="true"></canvas>
 
 <script>
-(() => {
-  const boardElem = document.getElementById('board');
-  const startBtn = document.getElementById('startBtn');
-  const powerupBtn = document.getElementById('powerupBtn');
-  const playerCountSelect = document.getElementById('playerCount');
-  const playVsBotCheckbox = document.getElementById('playVsBot');
-  const botDifficultySelect = document.getElementById('botDifficulty');
-  const boardSizeSelect = document.getElementById('boardSize');
-  const timerElem = document.getElementById('timerValue');
-  const scoreboardElem = document.getElementById('scoreboard');
-  const endGameModal = document.getElementById('endGameModal');
+  // --- Variables and Game State ---
+  const cells = Array.from(document.querySelectorAll('.cell'));
+  const game = document.getElementById('game');
+  const difficultySelect = document.getElementById('difficulty');
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const modal = document.getElementById('endGameModal');
   const endGameMessage = document.getElementById('endGameMessage');
-  const closeModalBtn = document.getElementById('closeModalBtn');
+  const playAgainBtn = document.getElementById('playAgainBtn');
+  const confettiCanvas = document.getElementById('confetti-canvas');
+  const ctx = confettiCanvas.getContext('2d');
 
-  let board = [];
-  let boardSize = 3;
-  let playerCount = 2;
-  let vsBot = false;
-  let botDifficulty = 'medium';
-  let currentPlayer = 0; // 0 or 1
-  let movesMade = 0;
-  let gameActive = false;
-  let powerupsLeft = [1, 1]; // one powerup per player
-  let blockedCells = new Set();
-  let lastMoves = [null, null];
-  let timerInterval = null;
-  let timerValue = 10;
+  let board = Array(9).fill(null); // 'X' or 'O' or null
+  let playerTurn = true; // player is 'X', AI is 'O'
+  let gameActive = true;
+  let moveHistory = [];
+  let redoHistory = [];
+  let currentDifficulty = difficultySelect.value;
+  let winningLine = [];
+  let confettiRunning = false;
 
-  // Setup event listeners for toggling bot mode and difficulty
-  playVsBotCheckbox.addEventListener('change', () => {
-    botDifficultySelect.disabled = !playVsBotCheckbox.checked;
-    if (playVsBotCheckbox.checked) {
-      playerCountSelect.value = 1;
-      playerCountSelect.disabled = true;
+  // Sounds (simple beep from web audio for demo)
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playBeep(frequency = 440, duration = 150) {
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.type = 'sine';
+    oscillator.frequency.value = frequency;
+    oscillator.start();
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + duration / 1000);
+  }
+
+  // --- Confetti Particle System ---
+  class ConfettiParticle {
+    constructor(canvasWidth, canvasHeight) {
+      this.x = Math.random() * canvasWidth;
+      this.y = Math.random() * canvasHeight - canvasHeight;
+      this.size = Math.random() * 6 + 4;
+      this.gravity = 0.3 + Math.random() * 0.3;
+      this.color = `hsl(${Math.random() * 270 + 240}, 90%, 80%)`; // purple hues
+      this.rotation = Math.random() * 360;
+      this.rotationSpeed = (Math.random() - 0.5) * 10;
+      this.velocityX = (Math.random() - 0.5) * 2;
+      this.velocityY = Math.random() * 2 + 1;
+    }
+
+    update() {
+      this.velocityY += this.gravity;
+      this.x += this.velocityX;
+      this.y += this.velocityY;
+      this.rotation += this.rotationSpeed;
+
+      if (this.y > window.innerHeight) {
+        this.x = Math.random() * window.innerWidth;
+        this.y = -this.size;
+        this.velocityY = Math.random() * 2 + 1;
+      }
+    }
+
+    draw(ctx) {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation * Math.PI / 180);
+      ctx.fillStyle = this.color;
+      ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+      ctx.restore();
+    }
+  }
+
+  let confettiParticles = [];
+
+  function setupConfetti() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+    confettiParticles = Array.from({ length: 120 }, () => new ConfettiParticle(confettiCanvas.width, confettiCanvas.height));
+  }
+  setupConfetti();
+  window.addEventListener('resize', setupConfetti);
+
+  function runConfetti() {
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiParticles.forEach(p => {
+      p.update();
+      p.draw(ctx);
+    });
+    if (confettiRunning) requestAnimationFrame(runConfetti);
+  }
+
+  function startConfetti() {
+    confettiRunning = true;
+    runConfetti();
+    setTimeout(() => { confettiRunning = false; ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); }, 5000);
+  }
+
+  // --- Game Logic ---
+
+  // Winning combinations indices
+  const winningCombos = [
+    [0, 1, 2], [3, 4, 5],
+    [6, 7, 8], [0, 3, 6],
+    [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
+  ];
+
+  function checkWin(board, player) {
+    for (const combo of winningCombos) {
+      if (combo.every(i => board[i] === player)) {
+        return combo;
+      }
+    }
+    return null;
+  }
+
+  function checkDraw(board) {
+    return board.every(cell => cell !== null);
+  }
+
+  function updateBoardUI() {
+    cells.forEach((cell, idx) => {
+      cell.textContent = board[idx] === 'X' ? '✕' : board[idx] === 'O' ? '◯' : '';
+      cell.classList.remove('x', 'o', 'filled', 'winning', 'disabled');
+      if (board[idx]) {
+        cell.classList.add(board[idx].toLowerCase(), 'filled');
+      }
+      if (!gameActive) {
+        cell.classList.add('disabled');
+      }
+    });
+  }
+
+  function highlightWinningCells(combo) {
+    combo.forEach(i => cells[i].classList.add('winning'));
+  }
+
+  // --- Undo / Redo ---
+
+  function updateUndoRedoButtons() {
+    undoBtn.disabled = moveHistory.length === 0;
+    redoBtn.disabled = redoHistory.length === 0;
+  }
+
+  // --- Player Move ---
+
+  function playerMove(index) {
+    if (!gameActive || board[index]) return false;
+    board[index] = 'X';
+    moveHistory.push({ board: [...board], player: 'X', index });
+    redoHistory = [];
+    playBeep(550);
+    updateBoardUI();
+    checkGameStatus('X');
+    if (gameActive) {
+      playerTurn = false;
+      aiMove();
+    }
+    updateUndoRedoButtons();
+    return true;
+  }
+
+  // --- AI Moves ---
+
+  function aiMove() {
+    setTimeout(() => {
+      if (!gameActive) return;
+      let moveIndex;
+      switch (currentDifficulty) {
+        case 'easy': moveIndex = easyAIMove(board, 'O'); break;
+        case 'medium': moveIndex = mediumAIMove(board, 'O'); break;
+        case 'hard': moveIndex = hardAIMove(board, 'O'); break;
+        default: moveIndex = mediumAIMove(board, 'O');
+      }
+      board[moveIndex] = 'O';
+      moveHistory.push({ board: [...board], player: 'O', index: moveIndex });
+      playBeep(330);
+      updateBoardUI();
+      checkGameStatus('O');
+      playerTurn = true;
+      updateUndoRedoButtons();
+    }, 700);
+  }
+
+  // AI Easy - random
+  function easyAIMove(board, player) {
+    let empty = board.map((v, i) => v === null ? i : null).filter(v => v !== null);
+    return empty[Math.floor(Math.random() * empty.length)];
+  }
+
+  // AI Medium - block and win attempts
+  function mediumAIMove(board, player) {
+    // Win if possible
+    for (let i = 0; i < 9; i++) {
+      if (!board[i]) {
+        board[i] = player;
+        if (checkWin(board, player)) {
+          board[i] = null;
+          return i;
+        }
+        board[i] = null;
+      }
+    }
+    // Block opponent
+    let opponent = player === 'X' ? 'O' : 'X';
+    for (let i = 0; i < 9; i++) {
+      if (!board[i]) {
+        board[i] = opponent;
+        if (checkWin(board, opponent)) {
+          board[i] = null;
+          return i;
+        }
+        board[i] = null;
+      }
+    }
+    // Pick center, corners, then sides
+    const preferredMoves = [4, 0, 2, 6, 8, 1, 3, 5, 7];
+    for (let move of preferredMoves) {
+      if (!board[move]) return move;
+    }
+    // fallback random
+    return easyAIMove(board, player);
+  }
+
+  // AI Hard - minimax algorithm
+  function hardAIMove(board, player) {
+    function minimax(newBoard, currentPlayer) {
+      let availSpots = newBoard.map((v, i) => v === null ? i : null).filter(v => v !== null);
+
+      let winComboX = checkWin(newBoard, 'X');
+      let winComboO = checkWin(newBoard, 'O');
+      if (winComboX) return { score: -10 };
+      if (winComboO) return { score: 10 };
+      if (availSpots.length === 0) return { score: 0 };
+
+      let moves = [];
+      for (let i = 0; i < availSpots.length; i++) {
+        let move = {};
+        move.index = availSpots[i];
+        newBoard[availSpots[i]] = currentPlayer;
+
+        if (currentPlayer === 'O') {
+          let result = minimax(newBoard, 'X');
+          move.score = result.score;
+        } else {
+          let result = minimax(newBoard, 'O');
+          move.score = result.score;
+        }
+        newBoard[availSpots[i]] = null;
+        moves.push(move);
+      }
+
+      let bestMove;
+      if (currentPlayer === 'O') {
+        let bestScore = -Infinity;
+        for (let i = 0; i < moves.length; i++) {
+          if (moves[i].score > bestScore) {
+            bestScore = moves[i].score;
+            bestMove = moves[i];
+          }
+        }
+      } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < moves.length; i++) {
+          if (moves[i].score < bestScore) {
+            bestScore = moves[i].score;
+            bestMove = moves[i];
+          }
+        }
+      }
+      return bestMove;
+    }
+
+    let bestMove = minimax(board, player);
+    return bestMove.index;
+  }
+
+  // --- Check Game Status ---
+  function checkGameStatus(currentPlayer) {
+    const combo = checkWin(board, currentPlayer);
+    if (combo) {
+      gameActive = false;
+      winningLine = combo;
+      highlightWinningCells(combo);
+      showEndGameModal(`${currentPlayer === 'X' ? 'You Win! 🎉' : 'AI Wins! 💻'}`);
+      startConfetti();
+      return true;
+    } else if (checkDraw(board)) {
+      gameActive = false;
+      showEndGameModal("It's a Draw! 🤝");
+      return true;
+    }
+    return false;
+  }
+
+  // --- End Game Modal ---
+  function showEndGameModal(message) {
+    endGameMessage.textContent = message;
+    modal.classList.add('show');
+    modal.focus();
+  }
+  function hideEndGameModal() {
+    modal.classList.remove('show');
+    game.focus();
+  }
+
+  // --- Undo ---
+  function undoMove() {
+    if (moveHistory.length === 0) return;
+    let lastMove = moveHistory.pop();
+    redoHistory.push(lastMove);
+    if (moveHistory.length === 0) {
+      board = Array(9).fill(null);
+      gameActive = true;
+      playerTurn = true;
     } else {
-      playerCountSelect.disabled = false;
+      board = [...moveHistory[moveHistory.length - 1].board];
+      gameActive = true;
+      playerTurn = moveHistory[moveHistory.length - 1].player === 'O';
+    }
+    updateBoardUI();
+    updateUndoRedoButtons();
+    hideEndGameModal();
+  }
+
+  // --- Redo ---
+  function redoMove() {
+    if (redoHistory.length === 0) return;
+    let nextMove = redoHistory.pop();
+    moveHistory.push(nextMove);
+    board = [...nextMove.board];
+    gameActive = true;
+    playerTurn = nextMove.player === 'O' ? false : true;
+    updateBoardUI();
+    updateUndoRedoButtons();
+    hideEndGameModal();
+  }
+
+  // --- Restart Game ---
+  function restartGame() {
+    board = Array(9).fill(null);
+    playerTurn = true;
+    gameActive = true;
+    moveHistory = [];
+    redoHistory = [];
+    winningLine = [];
+    updateBoardUI();
+    updateUndoRedoButtons();
+    hideEndGameModal();
+  }
+
+  // --- Event Listeners ---
+  cells.forEach((cell, idx) => {
+    cell.addEventListener('click', () => {
+      if (playerTurn) playerMove(idx);
+    });
+    cell.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (playerTurn) playerMove(idx);
+      }
+    });
+  });
+
+  undoBtn.addEventListener('click', undoMove);
+  redoBtn.addEventListener('click', redoMove);
+  restartBtn.addEventListener('click', restartGame);
+  difficultySelect.addEventListener('change', (e) => {
+    currentDifficulty = e.target.value;
+  });
+
+  playAgainBtn.addEventListener('click', () => {
+    restartGame();
+  });
+
+  // Accessibility: Trap focus inside modal when open
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      hideEndGameModal();
+    }
+    if (e.key === 'Tab') {
+      // simple trap on the button only (one focusable element)
+      e.preventDefault();
+      playAgainBtn.focus();
     }
   });
 
-  startBtn.addEventListener('click', startGame);
-  powerupBtn.addEventListener('click', usePowerup);
-  closeModalBtn.addEventListener('click', () => endGameModal.style.display = 'none');
+  // Initial setup
+  updateBoardUI();
+  updateUndoRedoButtons();
 
-  function startGame() {
-    vsBot = playVsBotCheckbox.checked;
-    botDifficulty = botDifficultySelect.value;
-    playerCount = vsBot ? 1 : parseInt(playerCountSelect.value);
-    boardSize = parseInt(boardSizeSelect.value);
-
-    createEmptyBoard();
-    setupGrid();
-    renderBoard();
-    resetScoresIfNeeded();
-
-    currentPlayer = 0;
-    movesMade = 0;
-    gameActive = true;
-    powerupsLeft = [1, 1];
-    blockedCells.clear();
-    lastMoves = [null, null];
-    powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
-
-    startTimer();
-    hideEndGameModal();
-
-    if (vsBot && currentPlayer === 1) {
-      botMove();
-    }
-  }
-
-  function createEmptyBoard() {
-    board = new Array(boardSize * boardSize).fill(null);
-  }
-
-  function setupGrid() {
-    boardElem.style.gridTemplateColumns = `repeat(${boardSize}, 60px)`;
-    boardElem.style.gridTemplateRows = `repeat(${boardSize}, 60px)`;
-    boardElem.innerHTML = '';
-    for (let i = 0; i < board.length; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.index = i;
-      cell.addEventListener('click', handleCellClick);
-      boardElem.appendChild(cell);
-    }
-  }
-
-  function renderBoard() {
-    for (let i = 0; i < board.length; i++) {
-      const cell = boardElem.children[i];
-      cell.textContent = board[i] === 0 ? 'X' : board[i] === 1 ? 'O' : '';
-      if (blockedCells.has(i)) {
-        cell.classList.add('blocked');
-        cell.textContent = '■';
-        cell.style.color = '#333';
-      } else {
-        cell.classList.remove('blocked');
-        cell.style.color = '#000';
-      }
-    }
-  }
-
-  function handleCellClick(e) {
-    if (!gameActive) return;
-    const idx = Number(e.target.dataset.index);
-    if (board[idx] !== null || blockedCells.has(idx)) return;
-    if (vsBot && currentPlayer === 1) return; // Ignore clicks on bot's turn
-
-    makeMove(idx);
-  }
-
-  function makeMove(idx) {
-    if (board[idx] !== null || blockedCells.has(idx)) return;
-
-    board[idx] = currentPlayer;
-    lastMoves[currentPlayer] = idx;
-    movesMade++;
-
-    renderBoard();
-    updateScoreboard();
-
-    if (checkWin(idx, currentPlayer)) {
-      gameActive = false;
-      showEndGameModal(`Player ${currentPlayer + 1} wins!`);
-      powerupBtn.disabled = true;
-      if (vsBot && currentPlayer === 1) launchConfetti();
-      stopTimer();
-      return;
-    }
-
-    if (movesMade >= boardSize * boardSize) {
-      gameActive = false;
-      showEndGameModal("It's a tie!");
-      powerupBtn.disabled = true;
-      stopTimer();
-      return;
-    }
-
-    currentPlayer = (currentPlayer + 1) % (vsBot ? 2 : playerCount);
-    powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
-    resetTimer();
-
-    if (vsBot && currentPlayer === 1) {
-      botMove();
-    }
-  }
-
-  function checkWin(lastIdx, player) {
-    const row = Math.floor(lastIdx / boardSize);
-    const col = lastIdx % boardSize;
-
-    // Check row
-    let win = true;
-    for (let c = 0; c < boardSize; c++) {
-      if (board[row * boardSize + c] !== player) {
-        win = false;
-        break;
-      }
-    }
-    if (win) return true;
-
-    // Check column
-    win = true;
-    for (let r = 0; r < boardSize; r++) {
-      if (board[r * boardSize + col] !== player) {
-        win = false;
-        break;
-      }
-    }
-    if (win) return true;
-
-    // Check main diagonal if applicable
-    if (row === col) {
-      win = true;
-      for (let i = 0; i < boardSize; i++) {
-        if (board[i * boardSize + i] !== player) {
-          win = false;
-          break;
-        }
-      }
-      if (win) return true;
-    }
-
-    // Check anti diagonal if applicable
-    if (row + col === boardSize - 1) {
-      win = true;
-      for (let i = 0; i < boardSize; i++) {
-        if (board[i * boardSize + (boardSize - 1 - i)] !== player) {
-          win = false;
-          break;
-        }
-      }
-      if (win) return true;
-    }
-
-    return false;
-  }
-
-  // Power-up blocks the last move of opponent
-  function usePowerup() {
-    if (powerupsLeft[currentPlayer] <= 0 || !gameActive) return;
-    const opponent = (currentPlayer + 1) % (vsBot ? 2 : playerCount);
-    const opponentLastMove = lastMoves[opponent];
-    if (opponentLastMove === null || blockedCells.has(opponentLastMove)) return;
-
-    blockedCells.add(opponentLastMove);
-    powerupsLeft[currentPlayer]--;
-    powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
-    renderBoard();
-    // Immediately switch turn
-    currentPlayer = opponent;
-    resetTimer();
-
-    if (vsBot && currentPlayer === 1) {
-      botMove();
-    }
-  }
-
-  // Timer functions
-  function startTimer() {
-    timerValue = 10;
-    timerElem.textContent = timerValue;
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      timerValue--;
-      timerElem.textContent = timerValue;
-      if (timerValue <= 0) {
-        clearInterval(timerInterval);
-        skipTurn();
-      }
-    }, 1000);
-  }
-
-  function resetTimer() {
-    startTimer();
-  }
-
-  function stopTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-  }
-
-  // If timer runs out, skip turn
-  function skipTurn() {
-    if (!gameActive) return;
-    currentPlayer = (currentPlayer + 1) % (vsBot ? 2 : playerCount);
-    powerupBtn.disabled = powerupsLeft[currentPlayer] <= 0;
-    startTimer();
-
-    if (vsBot && currentPlayer === 1) {
-      botMove();
-    }
-  }
-
-  function updateScoreboard() {
-    // Placeholder, could be extended to keep scores over multiple rounds
-    scoreboardElem.textContent = `Player 1: ${powerupsLeft[0]} power-up(s) left | Player 2: ${powerupsLeft[1]} power-up(s) left`;
-  }
-
-  function showEndGameModal(message) {
-    endGameMessage.textContent = message;
-    endGameModal.style.display = 'flex';
-  }
-
-  function hideEndGameModal() {
-    endGameModal.style.display = 'none';
-  }
-
-  function resetScoresIfNeeded() {
-    powerupsLeft = [1, 1];
-    updateScoreboard();
-  }
-
-  // Bot AI moves
-  function botMove() {
-    if (!gameActive || currentPlayer !== 1) return;
-
-    setTimeout(() => {
-      let moveIndex;
-      if (botDifficulty === 'easy') {
-        moveIndex = getRandomMove();
-      } else if (botDifficulty === 'medium') {
-        moveIndex = getMediumMove();
-      } else if (botDifficulty === 'hard') {
-        moveIndex = getHardMove();
-      }
-      if (moveIndex !== null) {
-        makeMove(moveIndex);
-      }
-    }, 1000);
-  }
-
-  function getAvailableMoves() {
-    return board.map((val, idx) => (val === null && !blockedCells.has(idx) ? idx : null))
-                .filter(v => v !== null);
-  }
-
-  function getRandomMove() {
-    const moves = getAvailableMoves();
-    if (moves.length === 0) return null;
-    return moves[Math.floor(Math.random() * moves.length)];
-  }
-
-  // Medium: Try to win, block, else random
-  function getMediumMove() {
-    const moves = getAvailableMoves();
-    if (moves.length === 0) return null;
-
-    // Try to win
-    for (const idx of moves) {
-      board[idx] = 1;
-      if (checkWin(idx, 1)) {
-        board[idx] = null;
-        return idx;
-      }
-      board[idx] = null;
-    }
-    // Block opponent
-    for (const idx of moves) {
-      board[idx] = 0;
-      if (checkWin(idx, 0)) {
-        board[idx] = null;
-        return idx;
-      }
-      board[idx] = null;
-    }
-    return getRandomMove();
-  }
-
-  // Hard: Minimax with alpha-beta pruning
-  function getHardMove() {
-    const best = minimax(board.slice(), 1, true, 0, -Infinity, Infinity);
-    return best.index;
-  }
-
-  function minimax(boardState, player, isMaximizing, depth, alpha, beta) {
-    const moves = boardState.map((val, idx) => (val === null && !blockedCells.has(idx) ? idx : null))
-                            .filter(v => v !== null);
-
-    // Check terminal
-    for (const idx of [...Array(boardState.length).keys()]) {
-      if (boardState[idx] !== null) {
-        if (checkWinForMinimax(boardState, idx, 0)) return { score: -10 + depth, index: null };
-        if (checkWinForMinimax(boardState, idx, 1)) return { score: 10 - depth, index: null };
-      }
-    }
-    if (moves.length === 0) return { score: 0, index: null };
-
-    let bestMove = { score: isMaximizing ? -Infinity : Infinity, index: null };
-
-    for (const idx of moves) {
-      boardState[idx] = player;
-      const scoreObj = minimax(boardState, 1 - player, !isMaximizing, depth + 1, alpha, beta);
-      boardState[idx] = null;
-
-      if (isMaximizing) {
-        if (scoreObj.score > bestMove.score) {
-          bestMove.score = scoreObj.score;
-          bestMove.index = idx;
-        }
-        alpha = Math.max(alpha, scoreObj.score);
-      } else {
-        if (scoreObj.score < bestMove.score) {
-          bestMove.score = scoreObj.score;
-          bestMove.index = idx;
-        }
-        beta = Math.min(beta, scoreObj.score);
-      }
-
-      if (beta <= alpha) break;
-    }
-
-    return bestMove;
-  }
-
-  // Check win for minimax on arbitrary board
-  function checkWinForMinimax(boardState, lastIdx, player) {
-    const size = boardSize;
-    const row = Math.floor(lastIdx / size);
-    const col = lastIdx % size;
-
-    let win = true;
-    for (let c = 0; c < size; c++) {
-      if (boardState[row * size + c] !== player) {
-        win = false;
-        break;
-      }
-    }
-    if (win) return true;
-
-    win = true;
-    for (let r = 0; r < size; r++) {
-      if (boardState[r * size + col] !== player) {
-        win = false;
-        break;
-      }
-    }
-    if (win) return true;
-
-    if (row === col) {
-      win = true;
-      for (let i = 0; i < size; i++) {
-        if (boardState[i * size + i] !== player) {
-          win = false;
-          break;
-        }
-      }
-      if (win) return true;
-    }
-
-    if (row + col === size - 1) {
-      win = true;
-      for (let i = 0; i < size; i++) {
-        if (boardState[i * size + (size - 1 - i)] !== player) {
-          win = false;
-          break;
-        }
-      }
-      if (win) return true;
-    }
-
-    return false;
-  }
-
-  // Simple confetti effect
-  function launchConfetti() {
-    const duration = 2 * 1000;
-    const animationEnd = Date.now() + duration;
-    const colors = ['#bb0000', '#ffffff'];
-
-    (function frame() {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) return;
-
-      const confetti = document.createElement('div');
-      confetti.style.position = 'fixed';
-      confetti.style.zIndex = '9999';
-      confetti.style.left = Math.random() * window.innerWidth + 'px';
-      confetti.style.top = '-10px';
-      confetti.style.width = '10px';
-      confetti.style.height = '10px';
-      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.borderRadius = '50%';
-      confetti.style.opacity = '0.7';
-      confetti.style.pointerEvents = 'none';
-      document.body.appendChild(confetti);
-
-      let pos = -10;
-      const fallInterval = setInterval(() => {
-        pos += 5;
-        confetti.style.top = pos + 'px';
-        if (pos > window.innerHeight) {
-          clearInterval(fallInterval);
-          confetti.remove();
-        }
-      }, 20);
-
-      requestAnimationFrame(frame);
-    })();
-  }
-
-  // Initialize defaults
-  startGame();
-})();
 </script>
+
 </body>
 </html>
